@@ -13,7 +13,7 @@ src/lrsdriver.c
 
 add_library(lrsnashlib ${lrsnashlib_sources})
 
-add_executable(main main.cc)
+add_executable(main main.c)
 target_link_libraries(main lrsnashlib)
 
 add_executable(lrsnash lrsnash.c)
