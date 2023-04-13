@@ -49,9 +49,7 @@ char LegacyMsg[] =
 #include <ctype.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include "lrsdriver.h"
-#include "lrslib.h"
-#include "lrsnashlib.h"
+#include "src/lib.h"
 
 //========================================================================
 // Games

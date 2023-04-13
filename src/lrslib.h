@@ -3,6 +3,9 @@
 #define VERSION "v.7.2_2022.3.6"
 #define AUTHOR "*Copyright (C) 1995,2022, David Avis   avis@cs.mcgill.ca "
 
+#define LRSLONG
+#define SAFE
+
 /* This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
