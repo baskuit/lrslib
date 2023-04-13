@@ -3,6 +3,13 @@ project(lrsnash1)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(lrsnash1 lrsnash.c lrsnashlib.c lrslib.c lrslong.c lrsdriver.c)
+set (SOURCES
+src/lrsnash.c 
+src/lrsnashlib.c 
+src/lrslib.c 
+src/lrslong.c 
+src/lrsdriver.c
+)
+
+add_executable(lrsnash1 ${SOURCES})
 target_compile_definitions(lrsnash1 PRIVATE LRSLONG SAFE)
-target_include_directories(lrsnash1 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
