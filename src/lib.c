@@ -18,7 +18,7 @@ void solve(int rows, int cols, int *row_num, int *row_den, int *col_num, int *co
             ++flat_idx;
         }
     }
-    // lrs_solve_nash(&Game);
+    lrs_solve_nash(&Game);
 }
 
 int lrs_solve_nash_(game * g)
@@ -142,11 +142,11 @@ int lrs_solve_nash_(game * g)
     prune = lrs_checkbound(P1, Q1);
     if (!prune && lrs_getsolution(P1, Q1, output1, col)) {
       oldnum = numequilib;
-      nash2_main(P1, Q1, P2orig, Q2, &numequilib, output2, linindex);
+      nash2_main_(P1, Q1, P2orig, Q2, &numequilib, output2, linindex);
       if (numequilib > oldnum || Q1->verbose) {
         if (Q1->verbose)
           prat(" \np2's obj value: ", P1->objnum, P1->objden);
-        lrs_nashoutput(Q1, output1, 1L);
+        lrs_nashoutput_(Q1, output1, 1L);
         fprintf(lrs_ofp, "\n");
       }
     }
@@ -291,7 +291,7 @@ long nash2_main_(lrs_dic * P1, lrs_dat * Q1, lrs_dic * P2orig,
     if (!prune && lrs_getsolution(P2, Q2, output, col)) {
       if (Q2->verbose)
         prat(" \np1's obj value: ", P2->objnum, P2->objden);
-      if (lrs_nashoutput(Q2, output, 2L))
+      if (lrs_nashoutput_(Q2, output, 2L))
         (*numequilib)++;
     }
   }
@@ -302,3 +302,24 @@ sayonara:
   return 0;
 
 }
+
+long lrs_nashoutput_(lrs_dat * Q, lrs_mp_vector output, long player)
+{
+  long i;
+  long origin = TRUE;
+
+/* do not print the origin for either player */
+  for (i = 1; i < Q->n; i++)
+    if (!zero(output[i]))
+      origin = FALSE;
+
+  if (origin)
+    return FALSE;
+
+  fprintf(lrs_ofp, "%ld ", player);
+  for (i = 1; i < Q->n; i++)
+    prat("", output[i], output[0]);
+  fprintf(lrs_ofp, "\n");
+  fflush(lrs_ofp);
+  return TRUE;
+} 

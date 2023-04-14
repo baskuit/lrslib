@@ -17,6 +17,8 @@ extern "C"
     extern long nash2_main_(lrs_dic *P1, lrs_dat *Q1, lrs_dic *P2orig,
                             lrs_dat *Q2, long *numequilib, lrs_mp_vector output, long linindex[]);
 
+    extern long lrs_nashoutput_(lrs_dat * Q, lrs_mp_vector output, long player);
+
 #ifdef __cplusplus
 }
 #endif
