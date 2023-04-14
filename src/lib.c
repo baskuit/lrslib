@@ -21,10 +21,10 @@ void init_game(game *g, int rows, int cols, int *row_num, int *row_den, int *col
 
 void solve(game *g, int *row_strategy, int *col_strategy)
 {
-    lrs_solve_nash_(g);
+    lrs_solve_nash_(g, row_strategy, col_strategy);
 }
 
-int lrs_solve_nash_(game * g)
+int lrs_solve_nash_(game * g, int *row_strategy, int *col_strategy)
 {
   lrs_dic *P1;             /* structure for holding current dictionary and indices */
   lrs_dat *Q1, *Q2;             /* structure for holding static problem data            */
@@ -145,11 +145,11 @@ int lrs_solve_nash_(game * g)
     prune = lrs_checkbound(P1, Q1);
     if (!prune && lrs_getsolution(P1, Q1, output1, col)) {
       oldnum = numequilib;
-      nash2_main_(P1, Q1, P2orig, Q2, &numequilib, output2, linindex);
+      nash2_main_(P1, Q1, P2orig, Q2, &numequilib, output2, linindex, row_strategy);
       if (numequilib > oldnum || Q1->verbose) {
         if (Q1->verbose)
           prat(" \np2's obj value: ", P1->objnum, P1->objden);
-        lrs_nashoutput_(Q1, output1, 1L);
+        lrs_nashoutput_(Q1, output1, 1L, col_strategy);
         fprintf(lrs_ofp, "\n");
       }
     }
@@ -190,7 +190,7 @@ int lrs_solve_nash_(game * g)
 /**********************************************************/
 
 long nash2_main_(lrs_dic * P1, lrs_dat * Q1, lrs_dic * P2orig,
-                lrs_dat * Q2, long *numequilib, lrs_mp_vector output, long linindex[])
+                lrs_dat * Q2, long *numequilib, lrs_mp_vector output, long linindex[], int *strategy)
 {
 
   lrs_dic *P2;                  /* This can get resized, cached etc. Loaded from P2orig */
@@ -223,7 +223,7 @@ long nash2_main_(lrs_dic * P1, lrs_dat * Q1, lrs_dic * P2orig,
   linearity = Q2->linearity;
   nlinearity = 0;
   for (i = Q1->lastdv + 1; i <= P1->m; i++) {
-    if (!zero(P1->A[P1->Row[i]][0])) {
+    if (!zero_(P1->A[P1->Row[i]][0])) {
       j = Q1->inequality[P1->B[i] - Q1->lastdv];
       if (Q1->nlinearity == 0 || j < Q1->linearity[0])
         linearity[nlinearity++] = j;
@@ -294,7 +294,7 @@ long nash2_main_(lrs_dic * P1, lrs_dat * Q1, lrs_dic * P2orig,
     if (!prune && lrs_getsolution(P2, Q2, output, col)) {
       if (Q2->verbose)
         prat(" \np1's obj value: ", P2->objnum, P2->objden);
-      if (lrs_nashoutput_(Q2, output, 2L))
+      if (lrs_nashoutput_(Q2, output, 2L, strategy))
         (*numequilib)++;
     }
   }
@@ -306,14 +306,14 @@ sayonara:
 
 }
 
-long lrs_nashoutput_(lrs_dat * Q, lrs_mp_vector output, long player)
+long lrs_nashoutput_(lrs_dat * Q, lrs_mp_vector output, long player, int *strategy)
 {
   long i;
   long origin = TRUE;
 
 /* do not print the origin for either player */
   for (i = 1; i < Q->n; i++)
-    if (!zero(output[i]))
+    if (!zero_(output[i]))
       origin = FALSE;
 
   if (origin)
@@ -322,6 +322,8 @@ long lrs_nashoutput_(lrs_dat * Q, lrs_mp_vector output, long player)
   fprintf(lrs_ofp, "%ld ", player);
   for (i = 1; i < Q->n; i++)
     prat("", output[i], output[0]);
+  for (i = 0; i < Q->n; i++)
+    strategy[i] = (int)*output[i];
   fprintf(lrs_ofp, "\n");
   fflush(lrs_ofp);
   return TRUE;

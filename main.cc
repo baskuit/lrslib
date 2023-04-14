@@ -1,5 +1,7 @@
 #include "src/lib.h"
 
+#include <iostream>
+
 int main()
 {
 
@@ -22,6 +24,16 @@ int main()
 	int col_strategy[cols + 2];
 
 	solve(&Game, row_strategy, col_strategy);
+
+	for (int i = 0; i < rows + 2; ++i) {
+		std::cout << row_strategy[i] << ", ";
+	}
+	std::cout << std::endl;
+
+	for (int i = 0; i < cols + 2; ++i) {
+		std::cout << col_strategy[i] << ", ";
+	}
+	std::cout << std::endl;
 
 	return 0;
 }

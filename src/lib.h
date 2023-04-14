@@ -14,12 +14,12 @@ extern "C"
 
     extern void solve(game *g, int *row_strategy, int *col_strategy);
 
-    extern int lrs_solve_nash_(game *g);
+    extern int lrs_solve_nash_(game * g, int *row_strategy, int *col_strategy);
 
     extern long nash2_main_(lrs_dic *P1, lrs_dat *Q1, lrs_dic *P2orig,
-                            lrs_dat *Q2, long *numequilib, lrs_mp_vector output, long linindex[]);
+                            lrs_dat *Q2, long *numequilib, lrs_mp_vector output, long linindex[], int *strategy);
 
-    extern long lrs_nashoutput_(lrs_dat * Q, lrs_mp_vector output, long player);
+    extern long lrs_nashoutput_(lrs_dat * Q, lrs_mp_vector output, long player, int *strategy);
 
 #ifdef __cplusplus
 }
