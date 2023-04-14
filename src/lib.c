@@ -1,6 +1,6 @@
 #include "lib.h"
 
-void solve(int rows, int cols, int *row, int *col)
+void solve(int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den)
 {
     lrs_init("*lrsnash:");
     game Game;
@@ -11,14 +11,14 @@ void solve(int rows, int cols, int *row, int *col)
     {
         for (int col_idx = 0; col_idx < cols; ++col_idx)
         {
-            Game.payoff[row_idx][col_idx][0].num = row[flat_idx];
-            Game.payoff[row_idx][col_idx][0].den = 1;
-            Game.payoff[row_idx][col_idx][1].num = col[flat_idx];
-            Game.payoff[row_idx][col_idx][1].den = 1;
+            Game.payoff[row_idx][col_idx][0].num = row_num[flat_idx];
+            Game.payoff[row_idx][col_idx][0].den = row_den[flat_idx];
+            Game.payoff[row_idx][col_idx][1].num = col_num[flat_idx];
+            Game.payoff[row_idx][col_idx][1].den = col_den[flat_idx];
             ++flat_idx;
         }
     }
-    lrs_solve_nash(&Game);
+    // lrs_solve_nash(&Game);
 }
 
 int lrs_solve_nash_(game * g)
