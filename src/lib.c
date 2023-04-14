@@ -1,24 +1,27 @@
 #include "lib.h"
 
-void solve(int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den)
+void init_game(game *g, int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den)
 {
     lrs_init("*lrsnash:");
-    game Game;
-    Game.nstrats[0] = rows;
-    Game.nstrats[1] = cols;
+    g->nstrats[0] = rows;
+    g->nstrats[1] = cols;
     int flat_idx = 0;
     for (int row_idx = 0; row_idx < rows; ++row_idx)
     {
         for (int col_idx = 0; col_idx < cols; ++col_idx)
         {
-            Game.payoff[row_idx][col_idx][0].num = row_num[flat_idx];
-            Game.payoff[row_idx][col_idx][0].den = row_den[flat_idx];
-            Game.payoff[row_idx][col_idx][1].num = col_num[flat_idx];
-            Game.payoff[row_idx][col_idx][1].den = col_den[flat_idx];
+            g->payoff[row_idx][col_idx][0].num = row_num[flat_idx];
+            g->payoff[row_idx][col_idx][0].den = row_den[flat_idx];
+            g->payoff[row_idx][col_idx][1].num = col_num[flat_idx];
+            g->payoff[row_idx][col_idx][1].den = col_den[flat_idx];
             ++flat_idx;
         }
     }
-    lrs_solve_nash(&Game);
+}
+
+void solve(game *g, int *row_strategy, int *col_strategy)
+{
+    lrs_solve_nash_(g);
 }
 
 int lrs_solve_nash_(game * g)
