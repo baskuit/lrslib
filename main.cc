@@ -10,18 +10,18 @@ void foo (int rows, int cols, int *row_num, int *row_den, int *col_num, int *col
 		row_num, row_den,
 		col_num, col_den);
 
-	int row_strategy[rows + 2];
-	int col_strategy[cols + 2];
+	long long row_data[rows + 2];
+	long long col_data[cols + 2];
 
-	solve(&Game, row_strategy, col_strategy);
+	solve(&Game, row_data, col_data);
 
 	for (int i = 0; i < rows + 2; ++i) {
-		std::cout << row_strategy[i] << ", ";
+		std::cout << row_data[i] << ", ";
 	}
 	std::cout << std::endl;
 
 	for (int i = 0; i < cols + 2; ++i) {
-		std::cout << col_strategy[i] << ", ";
+		std::cout << col_data[i] << ", ";
 	}
 	std::cout << std::endl;
 }

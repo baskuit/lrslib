@@ -1,4 +1,5 @@
 #include "lib.h"
+#include "float.h"
 
 void init_game(game *g, int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den)
 {
@@ -19,12 +20,12 @@ void init_game(game *g, int rows, int cols, int *row_num, int *row_den, int *col
   }
 }
 
-void solve(game *g, int *row_strategy, int *col_strategy)
+void solve(game *g, long long *row_data, long long *col_data)
 {
-  lrs_solve_nash_(g, row_strategy, col_strategy);
+  lrs_solve_nash_(g, row_data, col_data);
 }
 
-int lrs_solve_nash_(game *g, int *row_strategy, int *col_strategy)
+int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
 {
   lrs_dic *P1;      /* structure for holding current dictionary and indices */
   lrs_dat *Q1, *Q2; /* structure for holding static problem data            */
@@ -63,6 +64,11 @@ int lrs_solve_nash_(game *g, int *row_strategy, int *col_strategy)
 
   Q1->debug = Debug_flag;
   Q1->verbose = Verbose_flag;
+
+  double max_reward = DBL_MIN;
+  double max_row_reward;
+  double reward;
+  long long col_data_copy[Q1->n];
 
   P1 = lrs_alloc_dic(Q1); /* allocate and initialize lrs_dic */
   if (P1 == NULL)
@@ -258,6 +264,7 @@ int lrs_solve_nash_(game *g, int *row_strategy, int *col_strategy)
       /* prune is TRUE if tree should be pruned at current node */
       do
       {
+        max_row_reward = DBL_MIN;
         prune = lrs_checkbound(P2, Q2);
         col = 0;
         if (!prune && lrs_getsolution(P2, Q2, output2, col))
@@ -281,8 +288,11 @@ int lrs_solve_nash_(game *g, int *row_strategy, int *col_strategy)
             fprintf(lrs_ofp, "%ld ", 2L);
             for (i1 = 1; i1 < Q2->n; i1++)
               prat_("", output2[i1], output2[0]);
-            for (i1 = 0; i1 < Q2->n; i1++)
-              col_strategy[i1] = (int)*output2[i1];
+            reward = *output2[Q2->n - 1] / (double) *output2[0];
+            if (reward > max_row_reward) {
+              max_row_reward = reward;
+              memcpy(col_data, output2, Q2->n * sizeof(long long));
+            }
             fprintf(lrs_ofp, "\n");
             fflush(lrs_ofp);
             numequilib++;
@@ -314,8 +324,12 @@ int lrs_solve_nash_(game *g, int *row_strategy, int *col_strategy)
           fprintf(lrs_ofp, "%ld ", 1L);
           for (i1 = 1; i1 < Q1->n; i1++)
             prat_("", output1[i1], output1[0]);
-          for (i1 = 0; i1 < Q1->n; i1++)
-            row_strategy[i1] = (int)*output1[i1];
+          reward = (*output1[Q2->n - 1] / (double) *output1[0]) + max_row_reward;
+          if (reward > max_reward) {
+            max_reward = reward;
+            memcpy(row_data, output1, Q2->n * sizeof(long long));
+            memcpy(col_data, col_data_copy, Q2->n * sizeof(long long));
+          }
           fprintf(lrs_ofp, "\n");
           fflush(lrs_ofp);
         }
