@@ -18,7 +18,6 @@ void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
   // fprintf(lrs_ofp, " ");
 }
 
-
 int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
 {
   lrs_dic *P1;      /* structure for holding current dictionary and indices */
@@ -44,7 +43,7 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
   /*********************************************************************************/
   /* Step 1: Allocate lrs_dat, lrs_dic and set up the problem                      */
   /*********************************************************************************/
-  //   FirstTime=TRUE;                       /* This is done for each new game */
+  // FirstTime = TRUE; /* This is done for each new game */
 
   Q1 = lrs_alloc_dat("LRS globals"); /* allocate and init structure for static problem data */
   if (Q1 == NULL)
@@ -282,10 +281,12 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
             // fprintf(lrs_ofp, "%ld ", 2L);
             for (i1 = 1; i1 < Q2->n; i1++)
               prat_("", output2[i1], output2[0]);
-            reward = *output2[Q2->n - 1] / (double) *output2[0];
-            if (reward > max_row_reward) {
+            reward = *output2[Q2->n - 1] / (double)*output2[0];
+            if (reward > max_row_reward)
+            {
               max_row_reward = reward;
-              for (i1 = 0; i1 < Q2->n; i1++) {
+              for (i1 = 0; i1 < Q2->n; i1++)
+              {
                 col_data_copy[i1] = *output2[i1];
               }
             }
@@ -320,10 +321,12 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
           // fprintf(lrs_ofp, "%ld ", 1L);
           for (i1 = 1; i1 < Q1->n; i1++)
             prat_("", output1[i1], output1[0]);
-          reward = (*output1[Q2->n - 1] / (double) *output1[0]) + max_row_reward;
-          if (reward > max_reward) {
+          reward = (*output1[Q2->n - 1] / (double)*output1[0]) + max_row_reward;
+          if (reward > max_reward)
+          {
             max_reward = reward;
-            for (i1 = 0; i1 < Q2->n; i1++) {
+            for (i1 = 0; i1 < Q2->n; i1++)
+            {
               row_data[i1] = *output1[i1];
             }
             memcpy(col_data, col_data_copy, Q2->n * sizeof(long long));
@@ -378,6 +381,13 @@ void init_game(game *g, int rows, int cols, int *row_num, int *row_den, int *col
       ++flat_idx;
     }
   }
+}
+
+void _init_game(game *g, int rows, int cols)
+{
+  lrs_init("*lrsnash:");
+  g->nstrats[0] = rows;
+  g->nstrats[1] = cols;
 }
 
 void solve(game *g, long long *row_data, long long *col_data)

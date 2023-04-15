@@ -15,6 +15,8 @@ extern "C"
     Initializes the game using rational values. The arrays are flattened by row first.
     */
 
+    extern void _init_game(game *g, int rows, int cols);
+
     extern void solve(game *g, long long *row_data, long long *col_data);
     /*
     row_data, col_data must have size rows + 2, cols + 2, respectively.
