@@ -152,6 +152,7 @@ int lrs_solve_nash_(game *g, int *row_strategy, int *col_strategy)
     prune = lrs_checkbound(P1, Q1);
     if (!prune && lrs_getsolution(P1, Q1, output1, col))
     {
+
       oldnum = numequilib;
 
       // nash2_main_(P1, Q1, P2orig, Q2, &numequilib, output2, linindex, row_strategy);
@@ -263,7 +264,7 @@ int lrs_solve_nash_(game *g, int *row_strategy, int *col_strategy)
         {
           if (Q2->verbose)
             prat_(" \np1's obj value: ", P2->objnum, P2->objden);
-          
+
           long lrs_nashoutput1 = TRUE;
           long i1;
           long origin = TRUE;
@@ -275,17 +276,17 @@ int lrs_solve_nash_(game *g, int *row_strategy, int *col_strategy)
           if (origin)
             lrs_nashoutput1 = FALSE;
 
-          if (lrs_nashoutput1) {
+          if (lrs_nashoutput1)
+          {
             fprintf(lrs_ofp, "%ld ", 2L);
             for (i1 = 1; i1 < Q2->n; i1++)
               prat_("", output2[i1], output2[0]);
             for (i1 = 0; i1 < Q2->n; i1++)
-              row_strategy[i1] = (int)*output2[i1];
+              col_strategy[i1] = (int)*output2[i1];
             fprintf(lrs_ofp, "\n");
             fflush(lrs_ofp);
             numequilib++;
           }
-
         }
       } while (lrs_getnextbasis(&P2, Q2, prune));
 
@@ -296,7 +297,6 @@ int lrs_solve_nash_(game *g, int *row_strategy, int *col_strategy)
       {
         if (Q1->verbose)
           prat_(" \np2's obj value: ", P1->objnum, P1->objden);
-        
 
         long lrs_nashoutput2 = TRUE;
         long i1;
@@ -309,16 +309,16 @@ int lrs_solve_nash_(game *g, int *row_strategy, int *col_strategy)
         if (origin)
           lrs_nashoutput2 = FALSE;
 
-        if (lrs_nashoutput2) {
+        if (lrs_nashoutput2)
+        {
           fprintf(lrs_ofp, "%ld ", 1L);
           for (i1 = 1; i1 < Q1->n; i1++)
             prat_("", output1[i1], output1[0]);
           for (i1 = 0; i1 < Q1->n; i1++)
-            col_strategy[i1] = (int)*output1[i1];
+            row_strategy[i1] = (int)*output1[i1];
           fprintf(lrs_ofp, "\n");
           fflush(lrs_ofp);
         }
-
 
         fprintf(lrs_ofp, "\n");
       }
