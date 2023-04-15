@@ -139,9 +139,9 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
 
   if (Q1->homogeneous && Q1->hull)
     startcol++; /* col zero not treated as redundant   */
-
-  for (col = startcol; col < Q1->nredundcol; col++) /* print linearity space               */
-    lrs_printoutput(Q1, Lin[col]);                  /* Array Lin[][] holds the coeffs.     */
+  col = startcol;
+  // for (col = startcol; col < Q1->nredundcol; col++) /* print linearity space               */
+  //   lrs_printoutput(Q1, Lin[col]);                  /* Array Lin[][] holds the coeffs.     */
 
   /*********************************************************************************/
   /* Step 3: Terminate if lponly option set, otherwise initiate a reverse          */
