@@ -1,6 +1,24 @@
 #include "lib.h"
 #include "float.h"
 
+void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
+/*print the long precision rational Nt/Dt  */
+{
+  lrs_mp Nt, Dt;
+  copy_(Nt, Nin);
+  copy_(Dt, Din);
+  reduce(Nt, Dt);
+  // if (sign(Nt) != NEG)
+  //   fprintf(lrs_ofp, " ");
+
+  // fprintf(lrs_ofp, "%s%lld", name, *Nt);
+  // if (*Dt != 1)
+  //   fprintf(lrs_ofp, "/%lld", *Dt);
+
+  // fprintf(lrs_ofp, " ");
+}
+
+
 int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
 {
   lrs_dic *P1;      /* structure for holding current dictionary and indices */
@@ -341,23 +359,6 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
   //  lrs_close("nash:");
   // fprintf(lrs_ofp, "\n");
   return 0;
-}
-
-void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
-/*print the long precision rational Nt/Dt  */
-{
-  lrs_mp Nt, Dt;
-  copy_(Nt, Nin);
-  copy_(Dt, Din);
-  reduce(Nt, Dt);
-  // if (sign(Nt) != NEG)
-  //   fprintf(lrs_ofp, " ");
-
-  // fprintf(lrs_ofp, "%s%lld", name, *Nt);
-  // if (*Dt != 1)
-  //   fprintf(lrs_ofp, "/%lld", *Dt);
-
-  // fprintf(lrs_ofp, " ");
 }
 
 void init_game(game *g, int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den)
