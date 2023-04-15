@@ -153,7 +153,7 @@ extern __int128 MAXDm,MAXDl,MAXDa;               /* set correctly in lrs_mp_init
 
 #define abs128(a)		(a>0? a : -1*a)
 #define changesign(a)           (*(a) = - *(a))
-#define copy(a, b)              ((a)[0] = (b)[0])
+#define copy_(a, b)              ((a)[0] = (b)[0])
 #define mp_greater(a, b)           (*(a) > *(b) )
 #define itomp(in, a)             *(a) =  in 
 
@@ -168,7 +168,7 @@ extern __int128 MAXDm,MAXDl,MAXDa;               /* set correctly in lrs_mp_init
 #else
  #define storesign(a, sa)	(*(a) = abs128(*(a)) * sa)
 #endif
-#define zero(a)                 (*(a) == 0)
+#define zero_(a)                 (*(a) == 0)
 
 
 /*

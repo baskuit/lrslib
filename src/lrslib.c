@@ -245,7 +245,7 @@ redund_run  ( lrs_dic *P, lrs_dat * Q)
   for (i = 1; i <= m; i++)
     {
       for (j = 0; j <= d; j++)
-        copy (Ain[i][j], P->A[i][j]);
+        copy_ (Ain[i][j], P->A[i][j]);
 
       if (debug)
         lrs_printrow ("*", Q, Ain[i], d);
@@ -511,7 +511,7 @@ lrs_printoutput (lrs_dat * Q, lrs_mp_vector output)
 
   ss = (char **)malloc((1+Q->n) * sizeof(char*));
 
-  if (Q->hull || zero (output[0]))	/*non vertex */
+  if (Q->hull || zero_ (output[0]))	/*non vertex */
       for (i = 0; i < Q->n; i++)
        {
         ss[i]=cpmp ("", output[i]);
@@ -527,7 +527,7 @@ lrs_printoutput (lrs_dat * Q, lrs_mp_vector output)
   sss=(char*)malloc((len+5)* sizeof(char*));
   len=0;
 
-  if (Q->hull || zero (output[0]))      /*non vertex */
+  if (Q->hull || zero_ (output[0]))      /*non vertex */
       for (i = 0; i < Q->n; i++)
        {
         len=len+sprintf(sss+len,"%s ",ss[i]);
@@ -621,7 +621,7 @@ lrs_printrow (const char *name, lrs_dat * Q, lrs_mp_vector output, long rowd)
 
 /* input was vertex/ray */
 
-  if (zero (output[1]))		/*non-vertex */
+  if (zero_ (output[1]))		/*non-vertex */
     {
       for (i = 1; i <= rowd; i++)
 	pmp ("", output[i]);
@@ -1164,7 +1164,7 @@ lrs_read_dic (lrs_dic * P, lrs_dat * Q)
 	{
 	  if (readrat (A[i][j], A[0][j]))
 	    lcm (Lcm[i], A[0][j]);	/* update lcm of denominators */
-	  copy (Temp, A[i][j]);
+	  copy_ (Temp, A[i][j]);
 	  gcd (Gcd[i], Temp);	/* update gcd of numerators   */
 	}
 
@@ -1174,7 +1174,7 @@ lrs_read_dic (lrs_dic * P, lrs_dat * Q)
 	  if (!one (A[i][1]) || !one (A[0][1]))		/* all rows must have a one in column one */
 	    Q->polytope = FALSE;
 	}
-      if (!zero (A[i][hull]))	/* for H-rep, are zero in column 0     */
+      if (!zero_ (A[i][hull]))	/* for H-rep, are zero in column 0     */
 	Q->homogeneous = FALSE;	/* for V-rep, all zero in column 1     */
 
       storesign (Gcd[i], POS);
@@ -1380,7 +1380,7 @@ lrs_read_dic (lrs_dic * P, lrs_dat * Q)
               if(dualperturb && overflow != 2)   /* apply a perturbation to objective function */
                 {
 	          lrs_warning(Q,"warning","*Objective function perturbed");
-                  copy(Temp,mptwo);
+                  copy_(Temp,mptwo);
                 }
 	      for (j = Q->hull; j <= d; j++)
 	   	{
@@ -1389,8 +1389,8 @@ lrs_read_dic (lrs_dic * P, lrs_dat * Q)
                       if(dualperturb && j > 0 && j < d-Q->hull )
                         {
                          linrat(A[0][j], oD[j],ONE,mpone,Temp,ONE,Tempn,Tempd);
-                         copy(A[0][j],Tempn);
-                         copy(oD[j],Tempd);
+                         copy_(A[0][j],Tempn);
+                         copy_(oD[j],Tempd);
                          mulint(mptwo,Temp,Temp);
                         }
 		      reduce (A[0][j], oD[j]);
@@ -1403,7 +1403,7 @@ lrs_read_dic (lrs_dic * P, lrs_dat * Q)
 		for (j = Q->hull; j <= d; j++)
 		  {
 		    mulint (Q->Lcm[0], A[0][j], A[0][j]);	/*remove denominators */
-		    copy (Temp, A[0][j]);
+		    copy_ (Temp, A[0][j]);
 		    exactdivint (Temp, oD[j], A[0][j]);
 		  }
               if(messages && overflow !=2 )
@@ -1934,22 +1934,22 @@ lrs_getfirstbasis (lrs_dic ** D_p, lrs_dat * Q, lrs_mp_matrix * Lin, long no_out
       hull = FALSE;
       for (i = 1; i <= m; i++)
 	{
-	  if (zero (A[i][1]))
+	  if (zero_ (A[i][1]))
 	    {
               printf("\nWith voronoi option column one must be all one\n");
 	      return (FALSE);
 	    }
-	  copy (scale, A[i][1]);	/*adjust for scaling to integers of rationals */
+	  copy_ (scale, A[i][1]);	/*adjust for scaling to integers of rationals */
 	  itomp (ZERO, A[i][0]);
 	  for (j = 2; j <= d; j++)	/* transform each input row */
 	    {
-	      copy (Temp, A[i][j]);
+	      copy_ (Temp, A[i][j]);
 	      mulint (A[i][j], Temp, Temp);
 	      linint (A[i][0], ONE, Temp, ONE);
 	      linint (A[i][j - 1], ZERO, A[i][j], -TWO);
 	      mulint (scale, A[i][j - 1], A[i][j - 1]);
 	    }			/* end of for (j=1;..) */
-	  copy (A[i][d], scale);
+	  copy_ (A[i][d], scale);
 	  mulint (scale, A[i][d], A[i][d]);
 	}/* end of for (i=1;..) */
         if (Q->debug)
@@ -2166,7 +2166,7 @@ lrs_getfirstbasis (lrs_dic ** D_p, lrs_dat * Q, lrs_mp_matrix * Lin, long no_out
       else                         /* check to see if objective is dual degenerate */
        {
 	  j = 1;
-	  while (j <= d && !zero (A[0][j]))
+	  while (j <= d && !zero_ (A[0][j]))
 	    j++;
 	  if (j <= d)
 	    Q->dualdeg = TRUE;
@@ -2177,7 +2177,7 @@ lrs_getfirstbasis (lrs_dic ** D_p, lrs_dat * Q, lrs_mp_matrix * Lin, long no_out
     {
       for (j = 1; j <= d; j++)
 	{
-	  copy (A[0][j], D->det);
+	  copy_ (A[0][j], D->det);
 	  storesign (A[0][j], NEG);
 	}
 
@@ -2434,7 +2434,7 @@ lrs_getvertex (lrs_dic * P, lrs_dat * Q, lrs_mp_vector output)
 
   i = 1;
   ired = 0;
-  copy (output[0], P->det);
+  copy_ (output[0], P->det);
 
   for (ind = 1; ind < Q->n; ind++)	/* extract solution */
 
@@ -2473,7 +2473,7 @@ lrs_getvertex (lrs_dic * P, lrs_dat * Q, lrs_mp_vector output)
        fprintf(lrs_ofp,"\nslack ineq:");
        for(i=lastdv+1;i<=P->m; i++)
          {
-           if (!zero(A[Row[i]][0]))
+           if (!zero_(A[Row[i]][0]))
                  fprintf(lrs_ofp," %ld ", Q->inequality[B[i]-lastdv]);
          }
     }
@@ -2532,7 +2532,7 @@ lrs_getray (lrs_dic * P, lrs_dat * Q, long col, long redcol, lrs_mp_vector outpu
 	{
 	  if (redcol == ind)	/* true for linearity on this cobasic index */
 	    /* we print reduced determinant instead of zero */
-	    copy (output[ind], P->det);
+	    copy_ (output[ind], P->det);
 	  else
 	    itomp (ZERO, output[ind]);
 	  ired++;
@@ -2554,7 +2554,7 @@ lrs_getray (lrs_dic * P, lrs_dat * Q, long col, long redcol, lrs_mp_vector outpu
        fprintf(lrs_ofp,"\nslack ineq:");
        for(i=lastdv+1;i<=P->m; i++)
          {
-           if (!zero(P->A[Row[i]][col]))
+           if (!zero_(P->A[Row[i]][col]))
                  fprintf(lrs_ofp," %ld ", Q->inequality[B[i]-lastdv]);
          }
     }
@@ -2593,19 +2593,19 @@ getnextoutput (lrs_dic * P, lrs_dat * Q, long i, long col, lrs_mp out)
            {
              if ( Q->inequality[B[j]-lastdv] == m-d+i )
 	          {
-                    copy (out, A[Row[j]][col]);
+                    copy_ (out, A[Row[j]][col]);
                     return;
                   }
            }
 /* did not find inequality m-d+i in basis */
       if ( i == col )
-            copy(out,P->det);
+            copy_(out,P->det);
       else
             itomp(ZERO,out);
 	
     }
   else
-    copy (out, A[row][col]);
+    copy_ (out, A[row][col]);
 
 }				/* end of getnextoutput */
 
@@ -2685,8 +2685,8 @@ lrs_printcobasis (lrs_dic * P, lrs_dat * Q, long col)
 	nincidence = d-1;
 
 	for(i=lastdv+1;i<=m;i++)
-	if ( zero (A[Row[i]][0] ))
-	if( ( col == ZERO ) || zero (A[Row[i]] [col]) )
+	if ( zero_ (A[Row[i]][0] ))
+	if( ( col == ZERO ) || zero_ (A[Row[i]] [col]) )
 	  { 
 	    nincidence++;
 	    if( Q->incidence )
@@ -3263,7 +3263,7 @@ pivot (lrs_dic * P, lrs_dat * Q, long bas, long cob)
       fprintf (lrs_ofp, "\n pivot  B[%ld]=%ld  C[%ld]=%ld ", bas, B[bas], cob, C[cob]);
       fflush (stdout);
     }
-  copy (Ars, A[r][s]);
+  copy_ (Ars, A[r][s]);
   storesign (P->det, sign (Ars));	/*adjust determinant to new sign */
 
 
@@ -3288,18 +3288,18 @@ pivot (lrs_dic * P, lrs_dat * Q, long bas, long cob)
     {
       for (j = 0; j <= d; j++)	/* no need to change sign if Ars neg */
 	/*   A[r][j]=-A[r][j];              */
-	if (!zero (A[r][j]))
+	if (!zero_ (A[r][j]))
 	  changesign (A[r][j]);
     }				/* watch out for above "if" when removing this "}" ! */
   else
     for (i = 0; i <= m_A; i++)
-      if (!zero (A[i][s]))
+      if (!zero_ (A[i][s]))
 	changesign (A[i][s]);
 
   /*  A[r][s]=P->det;                  */
 
-  copy (A[r][s], P->det);		/* restore old determinant */
-  copy (P->det, Ars);
+  copy_ (A[r][s], P->det);		/* restore old determinant */
+  copy_ (P->det, Ars);
   storesign (P->det, POS);		/* always keep positive determinant */
 
 
@@ -3316,7 +3316,7 @@ pivot (lrs_dic * P, lrs_dat * Q, long bas, long cob)
 
   if (!Q->maximize)
         changesign (P->objnum);
-  if (zero (P->objnum))
+  if (zero_ (P->objnum))
         storesign (P->objnum, POS);
   else
 	reduce (P->objnum,P->objden);
@@ -3481,7 +3481,7 @@ getabasis (lrs_dic * P, lrs_dat * Q, long order[])
 		if (i <= m)
 		{			/* try to do a pivot */
 	  		k = 0l;
-	  		while (C[k] <= d && zero (A[Row[i]][Col[k]])){
+	  		while (C[k] <= d && zero_ (A[Row[i]][Col[k]])){
 	    			k++;
 			}
 	  		if (C[k] <= d)
@@ -3492,7 +3492,7 @@ getabasis (lrs_dic * P, lrs_dat * Q, long order[])
     			}
 	  		else if (j < nlinearity)
 	    		{			/* cannot pivot linearity to cobasis */
-                          if (zero (A[Row[i]][0]))
+                          if (zero_ (A[Row[i]][0]))
                             {
                                 if(Q->messages && overflow != 2)
                                  {
@@ -3621,7 +3621,7 @@ removecobasicindex (lrs_dic * P, lrs_dat * Q, long k)
     {
   /* copy col d to deloc */
       for (i = 0; i <= m; i++)
-        copy (A[i][deloc], A[i][d]);
+        copy_ (A[i][deloc], A[i][d]);
 
   /* reassign location for moved column */
       j = 0;
@@ -3664,9 +3664,9 @@ resize (lrs_dic * P, lrs_dat * Q)
   P1->d = P1->d_orig = d;
   P1->lexflag = P->lexflag;
   P1->m_A = P->m_A;
-  copy (P1->det, P->det);
-  copy (P1->objnum, P->objnum);
-  copy (P1->objden, P->objden);
+  copy_ (P1->det, P->det);
+  copy_ (P1->objnum, P->objnum);
+  copy_ (P1->objden, P->objden);
 
   for (i = 0; i <= m; i++)
     {
@@ -3676,7 +3676,7 @@ resize (lrs_dic * P, lrs_dat * Q)
   for (i = 0; i <= m_A; i++)
     {
       for (j = 0; j <= d; j++)
-	copy (P1->A[i][j], P->A[i][j]);
+	copy_ (P1->A[i][j], P->A[i][j]);
     }
 
 
@@ -3753,7 +3753,7 @@ restartpivots (lrs_dic * P, lrs_dat * Q)
   while (i>d){
     while(Cobasic[B[i]]){
       k = d - 1;
-      while ((k >= 0) && (zero (A[Row[i]][Col[k]]) || Cobasic[C[k]])){
+      while ((k >= 0) && (zero_ (A[Row[i]][Col[k]]) || Cobasic[C[k]])){
        k--;
       }
       if (k >= 0)  {
@@ -3823,7 +3823,7 @@ lrs_ratio (lrs_dic * P, lrs_dat * Q, long col)	/*find lex min. ratio */
       if (negative (A[Row[j]][col]))
        {
 	minratio[degencount++] = j;
-        if(zero (A[Row[j]][0]))
+        if(zero_ (A[Row[j]][0]))
           minratio[P->m]=0;   /*2011.7.14 degenerate pivot flag */
        }
     }				/* end of for loop */
@@ -3877,7 +3877,7 @@ lrs_ratio (lrs_dic * P, lrs_dat * Q, long col)	/*find lex min. ratio */
 			comp = -1;
 		    }
 
-		  else if (zero (Nmin) && zero (A[i][ratiocol]))
+		  else if (zero_ (Nmin) && zero_ (A[i][ratiocol]))
 		    comp = 0;
 
 		  if (ratiocol == ZERO)
@@ -3886,8 +3886,8 @@ lrs_ratio (lrs_dic * P, lrs_dat * Q, long col)	/*find lex min. ratio */
 	      if (comp == 1)
 		{		/*new minimum ratio */
 		  nstart = j;
-		  copy (Nmin, A[i][ratiocol]);
-		  copy (Dmin, A[i][col]);
+		  copy_ (Nmin, A[i][ratiocol]);
+		  copy_ (Dmin, A[i][col]);
 		  ndegencount = 1;
 		}
 	      else if (comp == 0)	/* repeated minimum */
@@ -3931,15 +3931,15 @@ lexmin (lrs_dic * P, lrs_dat * Q, long col)
   for (i = Q->lastdv + 1; i <= m; i++)
     {
       r = Row[i];
-      if (zero (A[r][col]))	/* necessary for lexmin to fail */
+      if (zero_ (A[r][col]))	/* necessary for lexmin to fail */
 	for (j = 0; j < d; j++)
 	  {
 	    s = Col[j];
 	    if (B[i] > C[j])	/* possible pivot to reduce basis */
 	      {
-		if (zero (A[r][0]))	/* no need for ratio test, any pivot feasible */
+		if (zero_ (A[r][0]))	/* no need for ratio test, any pivot feasible */
 		  {
-		    if (!zero (A[r][s]))
+		    if (!zero_ (A[r][s]))
 		      return (FALSE);
 		  }
 		else if (negative (A[r][s]) && ismin (P, Q, r, s))
@@ -4019,7 +4019,7 @@ lrs_degenerate (lrs_dic * P, lrs_dat * Q)
   Row = P->Row;
 
   for (i = d + 1; i <= m; i++)
-    if (zero (A[Row[i]][0]))
+    if (zero_ (A[Row[i]][0]))
       return TRUE;
 
   return FALSE;
@@ -4140,8 +4140,8 @@ updatevolume (lrs_dic * P, lrs_dat * Q)		/* rescale determinant and update the v
   lrs_mp tN, tD, Vnum, Vden;
   lrs_alloc_mp(tN); lrs_alloc_mp(tD); lrs_alloc_mp(Vnum); lrs_alloc_mp(Vden);
   rescaledet (P, Q, Vnum, Vden);
-  copy (tN, Q->Nvolume);
-  copy (tD, Q->Dvolume);
+  copy_ (tN, Q->Nvolume);
+  copy_ (tD, Q->Dvolume);
   linrat (tN, tD, ONE, Vnum, Vden, ONE, Q->Nvolume, Q->Dvolume);
   if (Q->debug)
     {
@@ -4256,7 +4256,7 @@ checkcobasic (lrs_dic * P, lrs_dat * Q, long index)
   i = Q->lastdv + 1;
 
   while ((i <= m) &&
-	 (zero (A[Row[i]][s]) || !zero (A[Row[i]][0])))
+	 (zero_ (A[Row[i]][s]) || !zero_ (A[Row[i]][0])))
     i++;
 
   if (i > m)
@@ -4320,7 +4320,7 @@ checkindex (lrs_dic * P, lrs_dat * Q, long index)
 
   for (j = 0; j <= d; j++)
     {
-      copy (A[0][j], A[i][j]);
+      copy_ (A[0][j], A[i][j]);
       changesign (A[0][j]);
       itomp (ZERO, A[i][j]);
     }
@@ -4337,7 +4337,7 @@ checkindex (lrs_dic * P, lrs_dat * Q, long index)
 
   for (j = 0; j <= d; j++)
     {
-      copy (A[i][j], A[0][j]);
+      copy_ (A[i][j], A[0][j]);
       changesign (A[i][j]);
     }
 
@@ -4797,7 +4797,7 @@ long extractcols (lrs_dic * P, lrs_dat * Q)
          for(j=0;j<n;j++)
             if(output[j])
               {
-                if(zero(A[Row[i]][Col[0]]))
+                if(zero_(A[Row[i]][Col[0]]))
                   pmp("",A[Row[i]][Col[j]]);
                 else
                   prat("",A[Row[i]][Col[j]],A[Row[i]][Col[0]]);
@@ -4862,7 +4862,7 @@ long linextractcols (lrs_dic * P, lrs_dat * Q)
             if(B[i]== remain[k]) 
               {
                j=0;
-               while(j+nlinearity<d && (C[j]<= d || zero(A[Row[i]][Col[j]])))
+               while(j+nlinearity<d && (C[j]<= d || zero_(A[Row[i]][Col[j]])))
                   j++;
                if (j+nlinearity<d)
                   {
@@ -5045,7 +5045,7 @@ copy_dict (lrs_dat * global, lrs_dic * dest, lrs_dic * src)
   {
   for ( r=0;r<=m_A;r++)
     for( s=0;s<=d;s++)
-       copy(dest->A[r][s],src->A[r][s]);
+       copy_(dest->A[r][s],src->A[r][s]);
   }
   else
 #ifdef B128
@@ -5068,9 +5068,9 @@ copy_dict (lrs_dat * global, lrs_dic * dest, lrs_dic * src)
   dest->depth = src->depth;
   dest->lexflag = src->lexflag;
 
-  copy (dest->det, src->det);
-  copy (dest->objnum, src->objnum);
-  copy (dest->objden, src->objden);
+  copy_ (dest->det, src->det);
+  copy_ (dest->objnum, src->objnum);
+  copy_ (dest->objden, src->objden);
 
   if (global->debug)
     fprintf (lrs_ofp, "\nSaving dict at depth %ld\n", src->depth);
@@ -5555,7 +5555,7 @@ save_basis (lrs_dic * P, lrs_dat * Q)
   for (i = 0; i < d + 1; i++)
     Q->saved_C[i] = C[i];
 
-  copy (Q->saved_det, P->det);
+  copy_ (Q->saved_det, P->det);
 
   Q->saved_d = P->d;
   Q->saved_depth = P->depth;
@@ -5795,11 +5795,11 @@ lrs_set_row_mp(lrs_dic *P, lrs_dat *Q, long row, lrs_mp_vector num, lrs_mp_vecto
   itomp (ZERO, Gcd[i]);     /* Gcd of numerators */
   for (j = hull; j <= d; j++)       /* hull data copied to cols 1..d */
         {
-          copy( A[i][j],num[j-hull]);
-          copy(oD[j],den[j-hull]);
+          copy_( A[i][j],num[j-hull]);
+          copy_(oD[j],den[j-hull]);
           if (!one(oD[j]))
             lcm (Lcm[i], oD[j]);      /* update lcm of denominators */
-          copy (Temp, A[i][j]);
+          copy_ (Temp, A[i][j]);
           gcd (Gcd[i], Temp);   /* update gcd of numerators   */
         }
 
@@ -5809,7 +5809,7 @@ lrs_set_row_mp(lrs_dic *P, lrs_dat *Q, long row, lrs_mp_vector num, lrs_mp_vecto
           if (!one (A[i][1]) || !one (oD[1]))         /* all rows must have a one in column one */
             Q->polytope = FALSE;
         }
-  if (!zero (A[i][hull]))   /* for H-rep, are zero in column 0     */
+  if (!zero_ (A[i][hull]))   /* for H-rep, are zero in column 0     */
         Q->homogeneous = FALSE; /* for V-rep, all zero in column 1     */
 
   storesign (Gcd[i], POS);
@@ -5929,7 +5929,7 @@ dan_selectpivot (lrs_dic * P, lrs_dat * Q, long *r, long *s)
        if(mp_greater(A[0][Col[k]],coeff))
         {
           j = k;
-          copy(coeff,A[0][Col[j]]);
+          copy_(coeff,A[0][Col[j]]);
         }
       k++;
      }
@@ -6038,7 +6038,7 @@ phaseone (lrs_dic * P, lrs_dat * Q)
        if(mp_greater(b_vector,A[Row[k]][0]))
         {
           i = k;
-          copy(b_vector,A[Row[i]][0]);
+          copy_(b_vector,A[Row[i]][0]);
         }
       k++;
      }
@@ -6809,10 +6809,10 @@ long lrs_check_inequality(lrs_dic *P, lrs_dat *Q)
            pmp(" ",A[i][j]);
        }
       if(i==1)
-        copy(opt,total);
+        copy_(opt,total);
       else
         if(mp_greater(total,opt) )
-          copy(opt,total);
+          copy_(opt,total);
       if(Q->debug)
           {
            pmp("total",total);
@@ -6837,7 +6837,7 @@ long lrs_check_inequality(lrs_dic *P, lrs_dat *Q)
             {
              fprintf(lrs_ofp,"\n%ld: ",i);
              for (j = 1; j <= d; j++)
-               if(!zero(P->A[i][1]))
+               if(!zero_(P->A[i][1]))
                  prat("",A[i][j],A[i][1]);
                else
                  pmp("",A[i][j]);
@@ -6902,14 +6902,14 @@ void linear_dep(lrs_dic *P, lrs_dat *Q, long *Dep)
   for(i=1;i<=nlinearity;i++)
     {
       for(j=0;j<=d;j++)
-	copy(A[i][j], P->A[i][j]);
+	copy_(A[i][j], P->A[i][j]);
       itomp(ZERO, A[i][d+1]);
     }
   for(col=1;col<=d;col++)
     {
       row = -1;
       for(i=1;i<=nlinearity;i++)
-	if ((zero(A[i][d+1]))&& !zero(A[i][col]))
+	if ((zero_(A[i][d+1]))&& !zero_(A[i][col]))
 	  {
 	    row = i;
 	    break;
@@ -6918,12 +6918,12 @@ void linear_dep(lrs_dic *P, lrs_dat *Q, long *Dep)
       if (row > 0)
 	for(k=1;k<=nlinearity;k++)
 	  {
-	    if ((zero(A[k][d+1]))&&(!zero(A[k][col])) && (k!=row))
+	    if ((zero_(A[k][d+1]))&&(!zero_(A[k][col])) && (k!=row))
 	      {
 		if (sign(A[k][col])*sign(A[row][col]) < 0)
 		  {
-		    copy(A[0][0], A[k][col]);
-		    copy(A[0][1], A[row][col]);
+		    copy_(A[0][0], A[k][col]);
+		    copy_(A[0][1], A[row][col]);
 		    
 		    storesign(A[0][0], POS);
 		    storesign(A[0][1], POS);
@@ -6937,8 +6937,8 @@ void linear_dep(lrs_dic *P, lrs_dat *Q, long *Dep)
 		  }
 		else
 		  {
-		    copy(A[0][0], A[k][col]);
-		    copy(A[0][1], A[row][col]);
+		    copy_(A[0][0], A[k][col]);
+		    copy_(A[0][1], A[row][col]);
 		    
 		    storesign(A[0][0], NEG);
 		    storesign(A[0][1], POS);
@@ -6968,7 +6968,7 @@ void linear_dep(lrs_dic *P, lrs_dat *Q, long *Dep)
   for(row=1,i=0;row<=nlinearity;row++)
     {
       for(k=0,i=0;k<=d;k++)
-	if(zero(A[row][k]))
+	if(zero_(A[row][k]))
 	  i++;
       if (i==d+1)
 	Dep[row] =1;
@@ -6998,7 +6998,7 @@ void lrs_compute_groups(lrs_dat *Q, lrs_dic *P, long col, long *groups)
 	  groups[row] = -1;
 	  groups[m+1]++;
 	}
-      else if (zero(P->A[row][col]))
+      else if (zero_(P->A[row][col]))
 	{
 	  groups[0]++;
 	}
@@ -7044,7 +7044,7 @@ long lrs_next_col(lrs_dat *Q, lrs_dic *P, long *remove)
     {
       col=remove[ind];
       j=1;
-      while(j <= Q->nlinearity && zero(P->A[j][col]))
+      while(j <= Q->nlinearity && zero_(P->A[j][col]))
          j++;
       if(j<=Q->nlinearity)
          goto gotcol;
@@ -7121,17 +7121,17 @@ void copydicA(lrs_dic *P1, lrs_dic *P, long skip_row, long skip_col)
 	  for (i = 0; i < skip_row; i++)
 	    {
 	      for(j = 0; j < skip_col; j++)
-		copy (P1->A[i][j], P->A[i][j]);
+		copy_ (P1->A[i][j], P->A[i][j]);
 	      for(j = skip_col+1; j <= d; j++)
-		copy (P1->A[i][j-1], P->A[i][j]);
+		copy_ (P1->A[i][j-1], P->A[i][j]);
 	      
 	    }
 	  for (i = skip_row+1; i <= m_A; i++)
 	    {
 	      for(j = 0; j < skip_col; j++)
-		copy (P1->A[i-1][j], P->A[i][j]);
+		copy_ (P1->A[i-1][j], P->A[i][j]);
 	      for(j = skip_col+1; j <= d; j++)
-		copy (P1->A[i-1][j-1], P->A[i][j]);
+		copy_ (P1->A[i-1][j-1], P->A[i][j]);
 	      
 	    }
 	}
@@ -7140,9 +7140,9 @@ void copydicA(lrs_dic *P1, lrs_dic *P, long skip_row, long skip_col)
 	  for (i = 0; i <= m_A; i++)
 	    {
 	      for(j = 0; j < skip_col; j++)
-		copy (P1->A[i][j], P->A[i][j]);
+		copy_ (P1->A[i][j], P->A[i][j]);
 	      for(j = skip_col+1; j <= d; j++)
-		copy (P1->A[i][j-1], P->A[i][j]);
+		copy_ (P1->A[i][j-1], P->A[i][j]);
 	      
 	    }
 	}
@@ -7154,16 +7154,16 @@ void copydicA(lrs_dic *P1, lrs_dic *P, long skip_row, long skip_col)
 	{
 	  for (i = 0; i < skip_row; i++)
 	    for(j = 0; j <= d; j++)
-	      copy (P1->A[i][j], P->A[i][j]);
+	      copy_ (P1->A[i][j], P->A[i][j]);
 	  for (i = skip_row+1; i <= m_A; i++)
 	    for(j = 0; j <= d; j++)
-	      copy (P1->A[i-1][j], P->A[i][j]);
+	      copy_ (P1->A[i-1][j], P->A[i][j]);
 	}
       else
 	{
 	  for (i = 0; i <= m_A; i++)
 	    for(j = 0; j <= d; j++)
-	      copy (P1->A[i][j], P->A[i][j]);
+	      copy_ (P1->A[i][j], P->A[i][j]);
 	 
 	}
     }
@@ -7209,16 +7209,16 @@ void put_linearities_first(lrs_dat *Q, lrs_dic *P)
 	{
 	  for(i=0;i<=P->d; i++)
 	    {
-	      copy(Temp, P->A[row][i]);
-	      copy(P->A[row][i], P->A[Q->linearity[row-1]][i]);
-	      copy(P->A[Q->linearity[row-1]][i], Temp);
+	      copy_(Temp, P->A[row][i]);
+	      copy_(P->A[row][i], P->A[Q->linearity[row-1]][i]);
+	      copy_(P->A[Q->linearity[row-1]][i], Temp);
 	    }
-	  copy(Temp, Q->Gcd[row]);
-	  copy(Q->Gcd[row], Q->Gcd[Q->linearity[row-1]]);
-	  copy(Q->Gcd[Q->linearity[row-1]], Temp);
-	  copy(Temp, Q->Lcm[row]);
-	  copy(Q->Lcm[row], Q->Lcm[Q->linearity[row-1]]);
-	  copy(Q->Lcm[Q->linearity[row-1]], Temp);
+	  copy_(Temp, Q->Gcd[row]);
+	  copy_(Q->Gcd[row], Q->Gcd[Q->linearity[row-1]]);
+	  copy_(Q->Gcd[Q->linearity[row-1]], Temp);
+	  copy_(Temp, Q->Lcm[row]);
+	  copy_(Q->Lcm[row], Q->Lcm[Q->linearity[row-1]]);
+	  copy_(Q->Lcm[Q->linearity[row-1]], Temp);
 	  Q->linearity[row-1] = row;
 	}
       
@@ -7344,26 +7344,26 @@ long lrs_project_var(lrs_dic **iP, lrs_dat **iQ, long col, long verbose)
 		
 		if (tgroups[k] > 0)
 		  {
-		    copy(div1, P->A[j][col]);
-		    copy(div2, P->A[k][col]);
+		    copy_(div1, P->A[j][col]);
+		    copy_(div2, P->A[k][col]);
 		    storesign(div1, POS);
-		    copy(Lcm, div1);
+		    copy_(Lcm, div1);
 		    lcm(Lcm, div2);
 		    
-		    copy(Temp, Lcm);
-		    copy(Temp1, div1);
+		    copy_(Temp, Lcm);
+		    copy_(Temp1, div1);
 		    divint(Temp, Temp1, Temp2);
 		    
-		    copy(Temp, Lcm);
-		    copy(Temp1, div2);
+		    copy_(Temp, Lcm);
+		    copy_(Temp1, div2);
 		    divint(Temp, Temp1, Temp3);
 		    
 		    
 		    for(l=0;l< col; l++)  
 		      {
 			
-			copy(Temp, P->A[j][l]);
-			copy(Temp1, P->A[k][l]); 
+			copy_(Temp, P->A[j][l]);
+			copy_(Temp1, P->A[k][l]); 
 			mulint(Temp,Temp2 ,Temp4);
 			mulint(Temp1,Temp3,Temp5);
 			addint(Temp4, Temp5, P1->A[row][l]);
@@ -7372,8 +7372,8 @@ long lrs_project_var(lrs_dic **iP, lrs_dat **iQ, long col, long verbose)
 		    for(l=col+1;l<Q->n; l++)  
 		      {
 			
-			copy(Temp, P->A[j][l]);
-			copy(Temp1, P->A[k][l]); 
+			copy_(Temp, P->A[j][l]);
+			copy_(Temp1, P->A[k][l]); 
 			mulint(Temp,Temp2 ,Temp4);
 			mulint(Temp1,Temp3,Temp5);
 			addint(Temp4, Temp5, P1->A[row][l-1]);
@@ -7390,9 +7390,9 @@ long lrs_project_var(lrs_dic **iP, lrs_dat **iQ, long col, long verbose)
 	  if (tgroups[j]==0)  /* just copy row, coefficient was '0' */
 	    {
 	      for(l=0;l<col;l++)
-		copy(P1->A[row][l], P->A[j][l]);
+		copy_(P1->A[row][l], P->A[j][l]);
 	      for(l=col+1;l<Q->n;l++)
-		copy(P1->A[row][l-1], P->A[j][l]);
+		copy_(P1->A[row][l-1], P->A[j][l]);
 	      reducearray(P1->A[row], Q1->n);
 	      row++;
 	    }
@@ -7406,7 +7406,7 @@ long lrs_project_var(lrs_dic **iP, lrs_dat **iQ, long col, long verbose)
     {
       l = 0;
       for(j=1;j<Q1->n; j++)
-	if (zero(P1->A[row][j]))
+	if (zero_(P1->A[row][j]))
 	  l++;
      }
            
@@ -7514,7 +7514,7 @@ long fel_run(lrs_dic *P, lrs_dat *Qin, lrs_restart_dat *R)
                   {
                      l++;
                      for(j=0;j<=P->d;j++)
-                     copy(P->A[l][j], Q->Ain[k][j]);
+                     copy_(P->A[l][j], Q->Ain[k][j]);
                   }
            lrs_clear_mp_matrix(Q->Ain,min,nin);
            copy_linearity(Q1, Q);
@@ -7536,7 +7536,7 @@ long fel_run(lrs_dic *P, lrs_dat *Qin, lrs_restart_dat *R)
 
       eqn= -1;
       for(l=1; l <= nlinearity; l++)
-	if (!zero(P->A[l][col])) 
+	if (!zero_(P->A[l][col])) 
 	  {
              eqn = l; /* use this linearity row to eliminate col */
 	     break;
@@ -7549,23 +7549,23 @@ long fel_run(lrs_dic *P, lrs_dat *Qin, lrs_restart_dat *R)
 	  Q->nlinearity = nlinearity;
 	  
 	  for(j=0;j<=P->d;j++)
-	     if ((j!=col) && !zero(P->A[eqn][j]))
+	     if ((j!=col) && !zero_(P->A[eqn][j]))
 		changesign(P->A[eqn][j]);
 
-	  copy(div1, P->A[eqn][col]);
+	  copy_(div1, P->A[eqn][col]);
 	  for(k=1;k<=P->m;k++)
             if (k!=eqn)
               {
 		  for(j=0;j<=P->d;j++)
                      if (j!=col)
 			{
-			  if (zero(P->A[k][col]))
+			  if (zero_(P->A[k][col]))
 				break;
 			  mulint(P->A[k][col], P->A[eqn][j], Temp);
 			  mulint(P->A[k][j], div1, Temp1);
 			  addint(Temp, Temp1, P->A[k][j]);
 			  if (negative(div1))
-                            if (!zero(P->A[k][j]))
+                            if (!zero_(P->A[k][j]))
 				  changesign(P->A[k][j]);
 			}
 		
@@ -7598,7 +7598,7 @@ long fel_run(lrs_dic *P, lrs_dat *Qin, lrs_restart_dat *R)
 
 	  for(row=Q->nlinearity+1;row<=Q->m; row++)
               for(l=0;l<=(Q->n)-1;l++)
-		copy(P2->A[row-Q->nlinearity][l], P->A[row][l]);
+		copy_(P2->A[row-Q->nlinearity][l], P->A[row][l]);
 
           Q2->m = Q->m - Q->nlinearity;
           Q2->mplrs=mplrs;
@@ -7628,15 +7628,15 @@ long fel_run(lrs_dic *P, lrs_dat *Qin, lrs_restart_dat *R)
             {
               Q1->redineq[row]=2;
               for(l=0;l<col;l++)/* skip column 'col' */
-		copy(P1->A[row][l], P->A[row][l]);
+		copy_(P1->A[row][l], P->A[row][l]);
               for(l=col+1;l<=(Q->n)-1;l++)
-		copy(P1->A[row][l-1], P->A[row][l]);
+		copy_(P1->A[row][l-1], P->A[row][l]);
             } 
           for(row=1;row<=P2->m_A; row++)
             {
               Q1->redineq[row+Q->nlinearity]=Q2->redineq[row];
               for(l=0;l<=(Q1->n)-1;l++)
-		copy(P1->A[row+Q->nlinearity][l], P2->A[row][l]);
+		copy_(P1->A[row+Q->nlinearity][l], P2->A[row][l]);
             }
 	  lrs_free_dic(P2 , Q2 );
           lrs_free_dat(Q2 );
