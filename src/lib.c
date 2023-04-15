@@ -106,7 +106,7 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
 
   linindex = calloc((P2orig->m + P2orig->d + 2), sizeof(long)); /* for next time */
 
-  fprintf(lrs_ofp, "\n");
+  // fprintf(lrs_ofp, "\n");
   //  fprintf (lrs_ofp, "***** %ld %ld rational\n", Q1->n, Q2->n);
 
   /*********************************************************************************/
@@ -119,17 +119,17 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
   if (!lrs_getfirstbasis(&P1, Q1, &Lin, TRUE))
     return 1;
 
-  if (Q1->dualdeg)
-  {
-    printf("\n*Warning! Dual degenerate, ouput may be incomplete");
-    printf("\n*Recommendation: Add dualperturb option before maximize in first input file\n");
-  }
+  // if (Q1->dualdeg)
+  // {
+  //   printf("\n*Warning! Dual degenerate, ouput may be incomplete");
+  //   printf("\n*Recommendation: Add dualperturb option before maximize in first input file\n");
+  // }
 
-  if (Q1->unbounded)
-  {
-    printf("\n*Warning! Unbounded starting dictionary for p1, output may be incomplete");
-    printf("\n*Recommendation: Change/remove maximize option, or include bounds \n");
-  }
+  // if (Q1->unbounded)
+  // {
+  //   printf("\n*Warning! Unbounded starting dictionary for p1, output may be incomplete");
+  //   printf("\n*Recommendation: Change/remove maximize option, or include bounds \n");
+  // }
 
   /* Pivot to a starting dictionary                      */
   /* There may have been column redundancy               */
@@ -169,8 +169,8 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
       long prune = FALSE; /* if TRUE, getnextbasis will prune tree and backtrack  */
       long nlinearity;
       long *linearity;
-      static long firstwarning = TRUE;   /* FALSE if dual deg warning for Q2 already given     */
-      static long firstunbounded = TRUE; /* FALSE if dual deg warning for Q2 already given     */
+      // static long firstwarning = TRUE;   /* FALSE if dual deg warning for Q2 already given     */
+      // static long firstunbounded = TRUE; /* FALSE if dual deg warning for Q2 already given     */
 
       long i, j;
 
@@ -208,12 +208,12 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
       for (i = 1; i < nlinearity; i++)
         reorder(linearity, nlinearity);
 
-      if (Q2->verbose)
-      {
-        fprintf(lrs_ofp, "\np2: linearities %ld", nlinearity);
-        for (i = 0; i < nlinearity; i++)
-          fprintf(lrs_ofp, " %ld", linearity[i]);
-      }
+      // if (Q2->verbose)
+      // {
+      //   fprintf(lrs_ofp, "\np2: linearities %ld", nlinearity);
+      //   for (i = 0; i < nlinearity; i++)
+      //     fprintf(lrs_ofp, " %ld", linearity[i]);
+      // }
 
       Q2->nlinearity = nlinearity;
       Q2->polytope = FALSE;
@@ -227,18 +227,18 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
 
       if (!lrs_getfirstbasis2(&P2, Q2, P2orig, &Lin, TRUE, linindex))
         goto sayonara;
-      if (firstwarning && Q2->dualdeg)
-      {
-        firstwarning = FALSE;
-        printf("\n*Warning! Dual degenerate, ouput may be incomplete");
-        printf("\n*Recommendation: Add dualperturb option before maximize in second input file\n");
-      }
-      if (firstunbounded && Q2->unbounded)
-      {
-        firstunbounded = FALSE;
-        printf("\n*Warning! Unbounded starting dictionary for p2, output may be incomplete");
-        printf("\n*Recommendation: Change/remove maximize option, or include bounds \n");
-      }
+      // if (firstwarning && Q2->dualdeg)
+      // {
+      //   firstwarning = FALSE;
+      //   printf("\n*Warning! Dual degenerate, ouput may be incomplete");
+      //   printf("\n*Recommendation: Add dualperturb option before maximize in second input file\n");
+      // }
+      // if (firstunbounded && Q2->unbounded)
+      // {
+      //   firstunbounded = FALSE;
+      //   printf("\n*Warning! Unbounded starting dictionary for p2, output may be incomplete");
+      //   printf("\n*Recommendation: Change/remove maximize option, or include bounds \n");
+      // }
 
       /* Pivot to a starting dictionary                      */
       /* There may have been column redundancy               */
@@ -285,7 +285,7 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
 
           if (lrs_nashoutput1)
           {
-            fprintf(lrs_ofp, "%ld ", 2L);
+            // fprintf(lrs_ofp, "%ld ", 2L);
             for (i1 = 1; i1 < Q2->n; i1++)
               prat_("", output2[i1], output2[0]);
             reward = *output2[Q2->n - 1] / (double) *output2[0];
@@ -295,8 +295,8 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
                 col_data_copy[i1] = *output2[i1];
               }
             }
-            fprintf(lrs_ofp, "\n");
-            fflush(lrs_ofp);
+            // fprintf(lrs_ofp, "\n");
+            // fflush(lrs_ofp);
             numequilib++;
           }
         }
@@ -323,7 +323,7 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
 
         if (lrs_nashoutput2)
         {
-          fprintf(lrs_ofp, "%ld ", 1L);
+          // fprintf(lrs_ofp, "%ld ", 1L);
           for (i1 = 1; i1 < Q1->n; i1++)
             prat_("", output1[i1], output1[0]);
           reward = (*output1[Q2->n - 1] / (double) *output1[0]) + max_row_reward;
@@ -334,18 +334,18 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
             }
             memcpy(col_data, col_data_copy, Q2->n * sizeof(long long));
           }
-          fprintf(lrs_ofp, "\n");
-          fflush(lrs_ofp);
+          // fprintf(lrs_ofp, "\n");
+          // fflush(lrs_ofp);
         }
 
-        fprintf(lrs_ofp, "\n");
+        // fprintf(lrs_ofp, "\n");
       }
     }
   } while (lrs_getnextbasis(&P1, Q1, prune));
 
-  fprintf(lrs_ofp, "*Number of equilibria found: %ld", numequilib);
-  fprintf(lrs_ofp, "\n*Player 1: vertices=%ld bases=%ld pivots=%ld", Q1->count[1], Q1->count[2], Q1->count[3]);
-  fprintf(lrs_ofp, "\n*Player 2: vertices=%ld bases=%ld pivots=%ld", Q2->count[1], Q2->count[2], Q2->count[3]);
+  // fprintf(lrs_ofp, "*Number of equilibria found: %ld", numequilib);
+  // fprintf(lrs_ofp, "\n*Player 1: vertices=%ld bases=%ld pivots=%ld", Q1->count[1], Q1->count[2], Q1->count[3]);
+  // fprintf(lrs_ofp, "\n*Player 2: vertices=%ld bases=%ld pivots=%ld", Q2->count[1], Q2->count[2], Q2->count[3]);
 
   lrs_clear_mp_vector(output1, Q1->m + Q1->n);
   lrs_clear_mp_vector(output2, Q1->m + Q1->n);
@@ -363,7 +363,7 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
   free(linindex);
 
   //  lrs_close("nash:");
-  fprintf(lrs_ofp, "\n");
+  // fprintf(lrs_ofp, "\n");
   return 0;
 }
 
@@ -374,12 +374,12 @@ void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
   copy_(Nt, Nin);
   copy_(Dt, Din);
   reduce(Nt, Dt);
-  if (sign(Nt) != NEG)
-    fprintf(lrs_ofp, " ");
+  // if (sign(Nt) != NEG)
+  //   fprintf(lrs_ofp, " ");
 
-  fprintf(lrs_ofp, "%s%lld", name, *Nt);
-  if (*Dt != 1)
-    fprintf(lrs_ofp, "/%lld", *Dt);
+  // fprintf(lrs_ofp, "%s%lld", name, *Nt);
+  // if (*Dt != 1)
+  //   fprintf(lrs_ofp, "/%lld", *Dt);
 
-  fprintf(lrs_ofp, " ");
+  // fprintf(lrs_ofp, " ");
 }
