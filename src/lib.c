@@ -263,8 +263,29 @@ int lrs_solve_nash_(game *g, int *row_strategy, int *col_strategy)
         {
           if (Q2->verbose)
             prat_(" \np1's obj value: ", P2->objnum, P2->objden);
-          if (lrs_nashoutput_(Q2, output2, 2L, row_strategy))
+          
+          long lrs_nashoutput1 = TRUE;
+          long i1;
+          long origin = TRUE;
+          /* do not print the origin for either player */
+          for (i1 = 1; i1 < Q2->n; i1++)
+            if (!zero_(output2[i1]))
+              origin = FALSE;
+
+          if (origin)
+            lrs_nashoutput1 = FALSE;
+
+          if (lrs_nashoutput1) {
+            fprintf(lrs_ofp, "%ld ", 2L);
+            for (i1 = 1; i1 < Q2->n; i1++)
+              prat_("", output2[i1], output2[0]);
+            for (i1 = 0; i1 < Q2->n; i1++)
+              row_strategy[i1] = (int)*output2[i1];
+            fprintf(lrs_ofp, "\n");
+            fflush(lrs_ofp);
             numequilib++;
+          }
+
         }
       } while (lrs_getnextbasis(&P2, Q2, prune));
 
@@ -275,7 +296,30 @@ int lrs_solve_nash_(game *g, int *row_strategy, int *col_strategy)
       {
         if (Q1->verbose)
           prat_(" \np2's obj value: ", P1->objnum, P1->objden);
-        lrs_nashoutput_(Q1, output1, 1L, col_strategy);
+        
+
+        long lrs_nashoutput2 = TRUE;
+        long i1;
+        long origin = TRUE;
+        /* do not print the origin for either player */
+        for (i1 = 1; i1 < Q1->n; i1++)
+          if (!zero_(output1[i1]))
+            origin = FALSE;
+
+        if (origin)
+          lrs_nashoutput2 = FALSE;
+
+        if (lrs_nashoutput2) {
+          fprintf(lrs_ofp, "%ld ", 1L);
+          for (i1 = 1; i1 < Q1->n; i1++)
+            prat_("", output1[i1], output1[0]);
+          for (i1 = 0; i1 < Q1->n; i1++)
+            col_strategy[i1] = (int)*output1[i1];
+          fprintf(lrs_ofp, "\n");
+          fflush(lrs_ofp);
+        }
+
+
         fprintf(lrs_ofp, "\n");
       }
     }
@@ -303,29 +347,6 @@ int lrs_solve_nash_(game *g, int *row_strategy, int *col_strategy)
   //  lrs_close("nash:");
   fprintf(lrs_ofp, "\n");
   return 0;
-}
-
-long lrs_nashoutput_(lrs_dat *Q, lrs_mp_vector output, long player, int *strategy)
-{
-  long i;
-  long origin = TRUE;
-
-  /* do not print the origin for either player */
-  for (i = 1; i < Q->n; i++)
-    if (!zero_(output[i]))
-      origin = FALSE;
-
-  if (origin)
-    return FALSE;
-
-  fprintf(lrs_ofp, "%ld ", player);
-  for (i = 1; i < Q->n; i++)
-    prat_("", output[i], output[0]);
-  for (i = 0; i < Q->n; i++)
-    strategy[i] = (int)*output[i];
-  fprintf(lrs_ofp, "\n");
-  fflush(lrs_ofp);
-  return TRUE;
 }
 
 void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
