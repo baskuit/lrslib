@@ -29,6 +29,10 @@ void foo (int rows, int cols, int *row_num, int *row_den, int *col_num, int *col
 int main()
 {
 
+	/*
+	This file is simply a test of the solve function that will be exposed to Surskit (https://www.baskuit.com/surskit) for the purpose of MatrixUCB and other search algorithms.
+	*/
+
 	const int rows = 2;
 	const int cols = 2;
 

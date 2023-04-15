@@ -1,30 +1,6 @@
 #include "lib.h"
 #include "float.h"
 
-void init_game(game *g, int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den)
-{
-  lrs_init("*lrsnash:");
-  g->nstrats[0] = rows;
-  g->nstrats[1] = cols;
-  int flat_idx = 0;
-  for (int row_idx = 0; row_idx < rows; ++row_idx)
-  {
-    for (int col_idx = 0; col_idx < cols; ++col_idx)
-    {
-      g->payoff[row_idx][col_idx][0].num = row_num[flat_idx];
-      g->payoff[row_idx][col_idx][0].den = row_den[flat_idx];
-      g->payoff[row_idx][col_idx][1].num = col_num[flat_idx];
-      g->payoff[row_idx][col_idx][1].den = col_den[flat_idx];
-      ++flat_idx;
-    }
-  }
-}
-
-void solve(game *g, long long *row_data, long long *col_data)
-{
-  lrs_solve_nash_(g, row_data, col_data);
-}
-
 int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
 {
   lrs_dic *P1;      /* structure for holding current dictionary and indices */
@@ -382,4 +358,28 @@ void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
   //   fprintf(lrs_ofp, "/%lld", *Dt);
 
   // fprintf(lrs_ofp, " ");
+}
+
+void init_game(game *g, int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den)
+{
+  lrs_init("*lrsnash:");
+  g->nstrats[0] = rows;
+  g->nstrats[1] = cols;
+  int flat_idx = 0;
+  for (int row_idx = 0; row_idx < rows; ++row_idx)
+  {
+    for (int col_idx = 0; col_idx < cols; ++col_idx)
+    {
+      g->payoff[row_idx][col_idx][0].num = row_num[flat_idx];
+      g->payoff[row_idx][col_idx][0].den = row_den[flat_idx];
+      g->payoff[row_idx][col_idx][1].num = col_num[flat_idx];
+      g->payoff[row_idx][col_idx][1].den = col_den[flat_idx];
+      ++flat_idx;
+    }
+  }
+}
+
+void solve(game *g, long long *row_data, long long *col_data)
+{
+  lrs_solve_nash_(g, row_data, col_data);
 }
