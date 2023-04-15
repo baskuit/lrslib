@@ -291,7 +291,9 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
             reward = *output2[Q2->n - 1] / (double) *output2[0];
             if (reward > max_row_reward) {
               max_row_reward = reward;
-              memcpy(col_data, output2, Q2->n * sizeof(long long));
+              for (i1 = 0; i1 < Q2->n; i1++) {
+                col_data_copy[i1] = *output2[i1];
+              }
             }
             fprintf(lrs_ofp, "\n");
             fflush(lrs_ofp);
@@ -327,7 +329,9 @@ int lrs_solve_nash_(game *g, long long *row_data, long long *col_data)
           reward = (*output1[Q2->n - 1] / (double) *output1[0]) + max_row_reward;
           if (reward > max_reward) {
             max_reward = reward;
-            memcpy(row_data, output1, Q2->n * sizeof(long long));
+            for (i1 = 0; i1 < Q2->n; i1++) {
+              row_data[i1] = *output1[i1];
+            }
             memcpy(col_data, col_data_copy, Q2->n * sizeof(long long));
           }
           fprintf(lrs_ofp, "\n");
