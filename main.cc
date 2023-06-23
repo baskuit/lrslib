@@ -2,7 +2,17 @@
 
 #include <iostream>
 
-void foo (int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den) {
+int main()
+{
+
+	const int rows = 2;
+	const int cols = 2;
+
+	int row_num[4] = {1, 0, 0, 1};
+	int row_den[4] = {2, 1, 1, 1};
+	int col_num[4] = {1, 1, 1, 0};
+	int col_den[4] = {2, 1, 1, 1};
+
 	game Game;
 
 	init_game(&Game,
@@ -10,52 +20,25 @@ void foo (int rows, int cols, int *row_num, int *row_den, int *col_num, int *col
 		row_num, row_den,
 		col_num, col_den);
 
-	long long row_data[rows + 2];
-	long long col_data[cols + 2];
+	lrs_mp_vector row_data = alloc_data(rows + 2);
+	lrs_mp_vector col_data = alloc_data(cols + 2);
 
 	solve(&Game, row_data, col_data);
 
-	for (int i = 0; i < rows + 2; ++i) {
-		std::cout << row_data[i] << ", ";
-	}
-	std::cout << std::endl;
+    std::cout << "row_strategy: " << std::endl;
+    for (int row_idx = 0; row_idx < rows + 2; ++row_idx) {
+        std::cout <<  row_data[row_idx] << ' ';
+    }
+    std::cout << std::endl;
 
-	for (int i = 0; i < cols + 2; ++i) {
-		std::cout << col_data[i] << ", ";
-	}
-	std::cout << std::endl;
-}
+    std::cout << "col_strategy: " << std::endl;
+    for (int col_idx = 0; col_idx < cols + 2; ++col_idx) {
+        std::cout << col_data[col_idx] << ' ';
+    }
+    std::cout << std::endl;
 
-int main()
-{
-
-	/*
-	This file is simply a test of the solve function that will be exposed to Surskit (https://www.baskuit.com/surskit) for the purpose of MatrixUCB and other search algorithms.
-	*/
-
-	const int rows = 2;
-	const int cols = 2;
-
-	int row_num1[4] = {1, 0, 0, 1};
-	int row_den1[4] = {2, 1, 1, 1};
-	int col_num1[4] = {1, 1, 1, 0};
-	int col_den1[4] = {1, 1, 1, 1};
-
-	foo(rows, cols, row_num1, row_den1, col_num1, col_den1);
-
-	int row_num2[4] = {1, 0, 0, 1};
-	int row_den2[4] = {1, 1, 1, 1};
-	int col_num2[4] = {0, 1, 1, 0};
-	int col_den2[4] = {1, 1, 1, 1};
-
-	foo(rows, cols, row_num2, row_den2, col_num2, col_den2);
-
-	int row_num3[4] = {1, 0, 0, 1};
-	int row_den3[4] = {2, 1, 1, 1};
-	int col_num3[4] = {1, 1, 1, 0};
-	int col_den3[4] = {2, 1, 1, 1};
-
-	foo(rows, cols, row_num3, row_den3, col_num3, col_den3);
+	dealloc_data(row_data, rows + 2);
+	dealloc_data(col_data, cols + 2);
 
 	return 0;
 }

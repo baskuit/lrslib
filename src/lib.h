@@ -11,19 +11,16 @@ extern "C"
 #endif
 
     extern void init_game(game *g, int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den);
-    /*
-    Initializes the game using rational values. The arrays are flattened by row first.
-    */
 
-    extern void _init_game(game *g, int rows, int cols);
+    extern void solve(game *g, lrs_mp_vector row_strategy, lrs_mp_vector col_strategy);
 
-    extern void solve(game *g, long long *row_data, long long *col_data);
-    /*
-    row_data, col_data must have size rows + 2, cols + 2, respectively.
-    Index 0 is the denominator, the next `row` entries are the numerator of the nash equilibrium strategy. The last index is the numberator of the payoff of the other player.
-    Since only one strategy is returned, we find all valid joint strategies and return the one with the total expected payoff (for both players.)
-    The hope is that this strategy is most suited for MatrixUCB (For a zero sum matrix, recall that all strategies have the same payoffs for each player.)
-    */
+    extern int lrs_solve_nash_(game *g, lrs_mp_vector row_strategy, lrs_mp_vector col_strategy);
+
+    extern void prat_(const char *name, lrs_mp Nin, lrs_mp Din);
+
+    extern lrs_mp_vector alloc_data(size_t size);
+
+    extern void dealloc_data(lrs_mp_vector data, size_t size);
 
 #ifdef __cplusplus
 }
