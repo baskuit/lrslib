@@ -349,18 +349,14 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                     for (i1 = 1; i1 < Q1->n; i1++)
                         prat_("", output1[i1], output1[0]);
 
-                    for (i1 = 0; i1 < Q2->n; i1++)
+                    for (i1 = 0; i1 < Q1->n; i1++)
                     {
                         *(row_data[i1]) = *output1[i1];
-                        // col_data[i1] = *col_data_copy[i1];
                     }
                     goto done;
 
-                    // fprintf(lrs_ofp, "\n");
-                    // fflush(lrs_ofp);
                 }
 
-                // fprintf(lrs_ofp, "\n");
             }
         }
     } while (lrs_getnextbasis(&P1, Q1, prune));
