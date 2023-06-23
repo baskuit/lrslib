@@ -14,6 +14,11 @@ src/lrsdriver.c
 
 add_library(lrsnashlib ${lrsnashlib_sources})
 
+# use the flag below to set data type for lrsnash.
+# top is 128 bit arithmetic, bottom is mpz_t from the gmp library
+target_compile_definitions(lrsnashlib PUBLIC B128 LRSLONG SAFE)
+# target_compile_definitions(lrsnashlib PRIVATE GMP)
+
 add_executable(main main.cc)
 target_link_libraries(main lrsnashlib)
 
