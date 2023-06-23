@@ -92,7 +92,7 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
     Q1->debug = Debug_flag;
     Q1->verbose = Verbose_flag;
 
-    lrs_mp_vector col_data_copy = lrs_alloc_mp_vector(Q1->n + Q1->m);
+    // lrs_mp_vector col_data_copy = lrs_alloc_mp_vector(Q1->n + Q1->m);
 
     P1 = lrs_alloc_dic(Q1); /* allocate and initialize lrs_dic */
     if (P1 == NULL)
@@ -314,7 +314,7 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
 
                         for (i1 = 0; i1 < Q2->n; i1++)
                         {
-                            col_data_copy[i1] = *output2[i1];
+                            *(col_data[i1]) = *output2[i1];
                         }
 
                         // fprintf(lrs_ofp, "\n");
@@ -351,8 +351,8 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
 
                     for (i1 = 0; i1 < Q2->n; i1++)
                     {
-                        row_data[i1] = *output1[i1];
-                        col_data[i1] = *col_data_copy[i1];
+                        *(row_data[i1]) = *output1[i1];
+                        // col_data[i1] = *col_data_copy[i1];
                     }
                     goto done;
 
@@ -372,7 +372,7 @@ done:
 
     lrs_clear_mp_vector(output1, Q1->m + Q1->n);
     lrs_clear_mp_vector(output2, Q1->m + Q1->n);
-    lrs_clear_mp_vector(col_data_copy, Q1->m + Q1->n);
+    // lrs_clear_mp_vector(col_data_copy, Q1->m + Q1->n);
 
     lrs_free_dic(P1, Q1); /* deallocate lrs_dic */
     lrs_free_dat(Q1);     /* deallocate lrs_dat */
