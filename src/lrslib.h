@@ -3,9 +3,6 @@
 #define VERSION "v.7.2_2022.3.6"
 #define AUTHOR "*Copyright (C) 1995,2022, David Avis   avis@cs.mcgill.ca "
 
-#define LRSLONG
-#define B128
-#define SAFE
 #define LRS_QUIET
 
 /* This program is free software; you can redistribute it and/or modify
