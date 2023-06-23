@@ -35,23 +35,6 @@ void solve(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
     lrs_solve_nash_(g, row_data, col_data);
 }
 
-void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
-/*print the long precision rational Nt/Dt  */
-{
-    lrs_mp Nt, Dt;
-    copy_(Nt, Nin);
-    copy_(Dt, Din);
-    reduce(Nt, Dt);
-    // if (sign(Nt) != NEG)
-    //   fprintf(lrs_ofp, " ");
-
-    // fprintf(lrs_ofp, "%s%lld", name, *Nt);
-    // if (*Dt != 1)
-    //   fprintf(lrs_ofp, "/%lld", *Dt);
-
-    // fprintf(lrs_ofp, " ");
-}
-
 int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
 {
     lrs_dic *P1;      /* structure for holding current dictionary and indices */
@@ -70,14 +53,6 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
     long prune = FALSE;  /* if TRUE, getnextbasis will prune tree and backtrack  */
     long numequilib = 0; /* number of nash equilibria found                      */
     long oldnum = 0;
-
-    /* global variables lrs_ifp and lrs_ofp are file pointers for input and output   */
-    /* they default to stdin and stdout, but may be overidden by command line parms. */
-
-    /*********************************************************************************/
-    /* Step 1: Allocate lrs_dat, lrs_dic and set up the problem                      */
-    /*********************************************************************************/
-    // FirstTime = TRUE; /* This is done for each new game */
 
     Q1 = lrs_alloc_dat("LRS globals"); /* allocate and init structure for static problem data */
     if (Q1 == NULL)
@@ -130,53 +105,13 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
 
     linindex = calloc((P2orig->m + P2orig->d + 2), sizeof(long)); /* for next time */
 
-    // fprintf(lrs_ofp, "\n");
-    //  fprintf (lrs_ofp, "***** %ld %ld rational\n", Q1->n, Q2->n);
-
-    /*********************************************************************************/
-    /* Step 2: Find a starting cobasis from default of specified order               */
-    /*         P1 is created to hold  active dictionary data and may be cached       */
-    /*         Lin is created if necessary to hold linearity space                   */
-    /*         Print linearity space if any, and retrieve output from first dict.    */
-    /*********************************************************************************/
-
     if (!lrs_getfirstbasis(&P1, Q1, &Lin, TRUE))
         return 1;
-
-    // if (Q1->dualdeg)
-    // {
-    //   printf("\n*Warning! Dual degenerate, ouput may be incomplete");
-    //   printf("\n*Recommendation: Add dualperturb option before maximize in first input file\n");
-    // }
-
-    // if (Q1->unbounded)
-    // {
-    //   printf("\n*Warning! Unbounded starting dictionary for p1, output may be incomplete");
-    //   printf("\n*Recommendation: Change/remove maximize option, or include bounds \n");
-    // }
-
-    /* Pivot to a starting dictionary                      */
-    /* There may have been column redundancy               */
-    /* If so the linearity space is obtained and redundant */
-    /* columns are removed. User can access linearity space */
-    /* from lrs_mp_matrix Lin dimensions nredundcol x d+1  */
 
     if (Q1->homogeneous && Q1->hull)
         startcol++; /* col zero not treated as redundant   */
     col = startcol;
-    // for (col = startcol; col < Q1->nredundcol; col++) /* print linearity space               */
-    //   lrs_printoutput(Q1, Lin[col]);                  /* Array Lin[][] holds the coeffs.     */
 
-    /*********************************************************************************/
-    /* Step 3: Terminate if lponly option set, otherwise initiate a reverse          */
-    /*         search from the starting dictionary. Get output for each new dict.    */
-    /*********************************************************************************/
-
-    /* We initiate reverse search from this dictionary       */
-    /* getting new dictionaries until the search is complete */
-    /* User can access each output line from output which is */
-    /* vertex/ray/facet from the lrs_mp_vector output         */
-    /* prune is TRUE if tree should be pruned at current node */
     do
     {
         prune = lrs_checkbound(P1, Q1);
@@ -185,33 +120,18 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
 
             oldnum = numequilib;
 
-            // nash2_main_(P1, Q1, P2orig, Q2, &numequilib, output2, linindex, row_strategy);
             lrs_dic *P2;       /* This can get resized, cached etc. Loaded from P2orig */
             lrs_mp_matrix Lin; /* holds input linearities if any are found             */
             long col;          /* output column index for dictionary                   */
             long startcol = 0;
-            long prune = FALSE; /* if TRUE, getnextbasis will prune tree and backtrack  */
+            long prune = FALSE;
             long nlinearity;
             long *linearity;
-            // static long firstwarning = TRUE;   /* FALSE if dual deg warning for Q2 already given     */
-            // static long firstunbounded = TRUE; /* FALSE if dual deg warning for Q2 already given     */
 
             long i, j;
 
-            /* global variables lrs_ifp and lrs_ofp are file pointers for input and output   */
-            /* they default to stdin and stdout, but may be overidden by command line parms. */
-
-            /*********************************************************************************/
-            /* Step 1: Allocate lrs_dat, lrs_dic and set up the problem                      */
-            /*********************************************************************************/
-
             P2 = lrs_getdic(Q2);
             copy_dict(Q2, P2, P2orig);
-
-            /* Here we take the linearities generated by the current vertex of player 1*/
-            /* and append them to the linearity in player 2's input matrix             */
-            /* next is the key magic linking player 1 and 2 */
-            /* be careful if you mess with this!            */
 
             linearity = Q2->linearity;
             nlinearity = 0;
@@ -224,68 +144,20 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                         linearity[nlinearity++] = j;
                 }
             }
-            /* add back in the linearity for probs summing to one */
             if (Q1->nlinearity > 0)
                 linearity[nlinearity++] = Q1->linearity[0];
 
-            /*sort linearities */
             for (i = 1; i < nlinearity; i++)
                 reorder(linearity, nlinearity);
-
-            // if (Q2->verbose)
-            // {
-            //   fprintf(lrs_ofp, "\np2: linearities %ld", nlinearity);
-            //   for (i = 0; i < nlinearity; i++)
-            //     fprintf(lrs_ofp, " %ld", linearity[i]);
-            // }
 
             Q2->nlinearity = nlinearity;
             Q2->polytope = FALSE;
 
-            /*********************************************************************************/
-            /* Step 2: Find a starting cobasis from default of specified order               */
-            /*         P2 is created to hold  active dictionary data and may be cached        */
-            /*         Lin is created if necessary to hold linearity space                   */
-            /*         Print linearity space if any, and retrieve output from first dict.    */
-            /*********************************************************************************/
-
             if (!lrs_getfirstbasis2(&P2, Q2, P2orig, &Lin, TRUE, linindex))
                 goto sayonara;
-            // if (firstwarning && Q2->dualdeg)
-            // {
-            //   firstwarning = FALSE;
-            //   printf("\n*Warning! Dual degenerate, ouput may be incomplete");
-            //   printf("\n*Recommendation: Add dualperturb option before maximize in second input file\n");
-            // }
-            // if (firstunbounded && Q2->unbounded)
-            // {
-            //   firstunbounded = FALSE;
-            //   printf("\n*Warning! Unbounded starting dictionary for p2, output may be incomplete");
-            //   printf("\n*Recommendation: Change/remove maximize option, or include bounds \n");
-            // }
-
-            /* Pivot to a starting dictionary                      */
-            /* There may have been column redundancy               */
-            /* If so the linearity space is obtained and redundant */
-            /* columns are removed. User can access linearity space */
-            /* from lrs_mp_matrix Lin dimensions nredundcol x d+1  */
-
             if (Q2->homogeneous && Q2->hull)
-                startcol++; /* col zero not treated as redundant   */
+                startcol++;
 
-            /* for (col = startcol; col < Q2->nredundcol; col++) */ /* print linearity space               */
-            /*lrs_printoutput (Q2, Lin[col]); */                    /* Array Lin[][] holds the coeffs.     */
-
-            /*********************************************************************************/
-            /* Step 3: Terminate if lponly option set, otherwise initiate a reverse          */
-            /*         search from the starting dictionary. Get output for each new dict.    */
-            /*********************************************************************************/
-
-            /* We initiate reverse search from this dictionary       */
-            /* getting new dictionaries until the search is complete */
-            /* User can access each output line from output which is */
-            /* vertex/ray/facet from the lrs_mp_vector output         */
-            /* prune is TRUE if tree should be pruned at current node */
             do
             {
                 prune = lrs_checkbound(P2, Q2);
@@ -298,7 +170,6 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                     long lrs_nashoutput1 = TRUE;
                     long i1;
                     long origin = TRUE;
-                    /* do not print the origin for either player */
                     for (i1 = 1; i1 < Q2->n; i1++)
                         if (!zero_(output2[i1]))
                             origin = FALSE;
@@ -308,7 +179,6 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
 
                     if (lrs_nashoutput1)
                     {
-                        // fprintf(lrs_ofp, "%ld ", 2L);
                         for (i1 = 1; i1 < Q2->n; i1++)
                             prat_("", output2[i1], output2[0]);
 
@@ -317,8 +187,6 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                             *(col_data[i1]) = *output2[i1];
                         }
 
-                        // fprintf(lrs_ofp, "\n");
-                        // fflush(lrs_ofp);
                         numequilib++;
                     }
                 }
@@ -354,21 +222,15 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                         *(row_data[i1]) = *output1[i1];
                     }
                     goto done;
-
                 }
-
             }
         }
     } while (lrs_getnextbasis(&P1, Q1, prune));
 
 done:
-    // fprintf(lrs_ofp, "*Number of equilibria found: %ld", numequilib);
-    // fprintf(lrs_ofp, "\n*Player 1: vertices=%ld bases=%ld pivots=%ld", Q1->count[1], Q1->count[2], Q1->count[3]);
-    // fprintf(lrs_ofp, "\n*Player 2: vertices=%ld bases=%ld pivots=%ld", Q2->count[1], Q2->count[2], Q2->count[3]);
 
     lrs_clear_mp_vector(output1, Q1->m + Q1->n);
     lrs_clear_mp_vector(output2, Q1->m + Q1->n);
-    // lrs_clear_mp_vector(col_data_copy, Q1->m + Q1->n);
 
     lrs_free_dic(P1, Q1); /* deallocate lrs_dic */
     lrs_free_dat(Q1);     /* deallocate lrs_dat */
@@ -382,7 +244,14 @@ done:
 
     free(linindex);
 
-    //  lrs_close("nash:");
-    // fprintf(lrs_ofp, "\n");
     return 0;
+}
+
+void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
+/*print the long precision rational Nt/Dt  */
+{
+    lrs_mp Nt, Dt;
+    copy_(Nt, Nin);
+    copy_(Dt, Din);
+    reduce(Nt, Dt);
 }
