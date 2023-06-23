@@ -4,6 +4,7 @@
 #define AUTHOR "*Copyright (C) 1995,2022, David Avis   avis@cs.mcgill.ca "
 
 #define LRSLONG
+#define B128
 #define SAFE
 #define LRS_QUIET
 

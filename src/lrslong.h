@@ -38,6 +38,8 @@
    Changing affects running time in small but not very predictable ways.
  */
 
+#define B128
+
 #define MAX_DIGITS 255L
 
 /*
