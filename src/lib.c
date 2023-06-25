@@ -38,7 +38,7 @@ void solve(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
 int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
 {
     lrs_dic *P1;      /* structure for holding current dictionary and indices */
-    lrs_dat *Q1, *Q2; /* structure for holding static problem data            */
+    lrs_dat *Q1, *Q2; /* structure for holding problem data            */
 
     lrs_mp_vector output1; /* holds one line of output; ray,vertex,facet,linearity */
     lrs_mp_vector output2; /* holds one line of output; ray,vertex,facet,linearity */
@@ -54,7 +54,7 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
     long numequilib = 0; /* number of nash equilibria found                      */
     long oldnum = 0;
 
-    Q1 = lrs_alloc_dat("LRS globals"); /* allocate and init structure for static problem data */
+    Q1 = lrs_alloc_dat("LRS globals"); /* allocate and init structure for problem data */
     if (Q1 == NULL)
     {
         return 0;

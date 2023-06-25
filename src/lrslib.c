@@ -35,44 +35,44 @@
 #include "lrsrestart.h"
 #include "lrslib.h"
 
-static unsigned long dict_count, dict_limit, cache_tries, cache_misses;
+unsigned long dict_count, dict_limit, cache_tries, cache_misses;
 
 /* Variables and functions global to this file only */
 
-static long lrs_checkpoint_seconds = 0;
+long lrs_checkpoint_seconds = 0;
 
-static long lrs_global_count = 0;	/* Track how many lrs_dat records are 
+long lrs_global_count = 0;	/* Track how many lrs_dat records are 
 					   allocated */
-static size_t infileLen;                /* length of cache of input file       */
-static char *infile = NULL;             /* cache of input for restart          */
-static char infilename[PATH_MAX];
-static char outfilename[PATH_MAX];
-static char tmpfilename[PATH_MAX];
-static long overflow=0;      /* =0 no overflow =1 restart overwrite =2 restart append */
-static long pivoting=FALSE;      /* =0 no overflow =1 restart overwrite =2 restart append */
+size_t infileLen;                /* length of cache of input file       */
+char *infile = NULL;             /* cache of input for restart          */
+char infilename[PATH_MAX];
+char outfilename[PATH_MAX];
+char tmpfilename[PATH_MAX];
+long overflow=0;      /* =0 no overflow =1 restart overwrite =2 restart append */
+long pivoting=FALSE;      /* =0 no overflow =1 restart overwrite =2 restart append */
 
-static jmp_buf buf1;
+jmp_buf buf1;
 
-static lrs_dat_p *lrs_global_list[MAX_LRS_GLOBALS + 1];
+lrs_dat_p *lrs_global_list[MAX_LRS_GLOBALS + 1];
 
-static lrs_dic *new_lrs_dic (long m, long d, long m_A);
+lrs_dic *new_lrs_dic (long m, long d, long m_A);
 
 
-static void cache_dict (lrs_dic ** D_p, lrs_dat * global, long i, long j);
-static long check_cache (lrs_dic ** D_p, lrs_dat * global, long *i_p, long *j_p);
-static void save_basis (lrs_dic * D, lrs_dat * Q);
+void cache_dict (lrs_dic ** D_p, lrs_dat * global, long i, long j);
+long check_cache (lrs_dic ** D_p, lrs_dat * global, long *i_p, long *j_p);
+void save_basis (lrs_dic * D, lrs_dat * Q);
 
-static void lrs_dump_state ();
+void lrs_dump_state ();
 
-static void pushQ (lrs_dat * global, long m, long d, long m_A);
+void pushQ (lrs_dat * global, long m, long d, long m_A);
 
 #ifdef LRSLONG
-static int tmpfd;
+int tmpfd;
 #endif
 
 #ifndef TIMES
-static void ptimes (void);
-static double get_time(void);
+void ptimes (void);
+double get_time(void);
 #endif
 
 char *basename(char *path);
@@ -81,10 +81,10 @@ char *basename(char *path);
 /* signals handling            */
 /*******************************/
 #ifndef SIGNALS
-static void checkpoint ();
-static void die_gracefully ();
-static void setup_signals (void);
-static void timecheck ();
+void checkpoint ();
+void die_gracefully ();
+void setup_signals (void);
+void timecheck ();
 #endif
 
 /*******************************/
@@ -2722,7 +2722,7 @@ lrs_printcobasis (lrs_dic * P, lrs_dat * Q, long col)
 void 
 lrs_printtotals (lrs_dic * P, lrs_dat * Q)
 {
-static int first_time=1;
+int first_time=1;
 /* print warnings */
 
 if(first_time)
@@ -4981,7 +4981,7 @@ pimat (lrs_dic * P, long r, long s, lrs_mp Nt, const char *name)
 
 /* From here mostly Bremner's handiwork */
 
-static void
+void
 cache_dict (lrs_dic ** D_p, lrs_dat * global, long i, long j)
 {
 
@@ -5095,7 +5095,7 @@ copy_dict (lrs_dat * global, lrs_dic * dest, lrs_dic * src)
 #define TRACE(s)
 #endif
 
-static void
+void
 pushQ (lrs_dat * global, long m, long d ,long m_A)
 {
 
@@ -5187,7 +5187,7 @@ lrs_dic *p;
 
 #define NULLRETURN(e) if (!(e)) return NULL;
 
-static lrs_dic *
+lrs_dic *
 new_lrs_dic (long m, long d, long m_A)
 {
   lrs_dic *p;
@@ -5367,7 +5367,7 @@ lrs_free_dat ( lrs_dat *Q )
 }
 
 
-static long
+long
 check_cache (lrs_dic ** D_p, lrs_dat * global, long *i_p, long *j_p)
 {
 /* assign local variables to structures */
@@ -5528,7 +5528,7 @@ lrs_alloc_dic (lrs_dat * Q)
    It is also used to make sure that in case of overflow, we
    have a valid cobasis to restart from.
  */
-static void
+void
 save_basis (lrs_dic * P, lrs_dat * Q)
 {
   int i;
@@ -5577,7 +5577,7 @@ digits_overflow ()
   notimpl("");
 }
 
-static void 
+void 
 lrs_dump_state ()
 {
   long i;
@@ -5662,7 +5662,7 @@ print_basis (FILE * fp, lrs_dat * global)
    INT (ctrl-C) ditto
    HUP                     ditto
  */
-static void
+void
 setup_signals ()
 {
   errcheck ("signal", signal (SIGTERM, die_gracefully));
@@ -5672,7 +5672,7 @@ setup_signals ()
   errcheck ("signal", signal (SIGUSR1, checkpoint));
 }
 
-static void
+void
 timecheck ()
 {
   lrs_dump_state ();
@@ -5680,14 +5680,14 @@ timecheck ()
   alarm (lrs_checkpoint_seconds);
 }
 
-static void
+void
 checkpoint ()
 {
   lrs_dump_state ();
   errcheck ("signal", signal (SIGUSR1, checkpoint));
 }
 
-static void
+void
 die_gracefully ()
 {
   lrs_dump_state ();
@@ -5705,7 +5705,7 @@ die_gracefully ()
 #include <sys/resource.h>
 #define double_time(t) ((double)(t.tv_sec)+(double)(t.tv_usec)/1000000)
 
-static void
+void
 ptimes ()
 {
   struct rusage rusage;
@@ -5723,7 +5723,7 @@ ptimes ()
 	   rusage.ru_inblock, rusage.ru_oublock);
 }
 
-static double get_time()
+double get_time()
 {
   struct rusage rusage;
   getrusage (RUSAGE_SELF, &rusage);
@@ -6482,7 +6482,7 @@ lrs_dic *lrs_setup(int argc, char *argv[], lrs_dat **Q, lrs_restart_dat *R)
   if ( !lrs_init(basename(argv[0])))
        return NULL;
   
-  *Q = lrs_alloc_dat ("LRS globals");    /* allocate and init structure for static problem data */
+  *Q = lrs_alloc_dat ("LRS globals");    /* allocate and init structure for problem data */
 
   if (*Q == NULL)
     return NULL;
@@ -6515,7 +6515,7 @@ lrs_dic *lrs_setup(int argc, char *argv[], lrs_dat **Q, lrs_restart_dat *R)
 
 lrs_dic *lrs_reset(lrs_dic *P_orig, lrs_dat *Q,  lrs_restart_dat *R)
 {
-  static long long inputmaxd=0;   /* hide maxd for restoring when using mplrs */
+  long long inputmaxd=0;   /* hide maxd for restoring when using mplrs */
   lrs_dic *P;
   long i;
 

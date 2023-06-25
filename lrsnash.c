@@ -156,8 +156,8 @@ int readGame(game * g, const char *filename)
 //========================================================================
 
 // Flags to be set from command line options
-static long Print_game_flag;
-static long Standard_input_flag;
+long Print_game_flag;
+long Standard_input_flag;
 
 void printUsage(const char *progname) {
 	fprintf(stderr, Usage, progname, progname, progname);
@@ -181,7 +181,7 @@ int getArgs(int argc, char **argv)
   }
 
   while (1) {
-    static struct option long_options[] = {
+    struct option long_options[] = {
       {"verbose", no_argument, 0, 'v'},
       {"debug", no_argument, 0, 'd'},
       {"printgame", no_argument, 0, 'p'},

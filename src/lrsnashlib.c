@@ -19,7 +19,7 @@
 #include "lib.h"
 
 
-static long FirstTime; /* set this to true for every new game to be solved */
+long FirstTime; /* set this to true for every new game to be solved */
 long Debug_flag;
 long Verbose_flag;
 
@@ -29,7 +29,7 @@ long Verbose_flag;
 int lrs_solve_nash(game * g)
 {
   lrs_dic *P1;             /* structure for holding current dictionary and indices */
-  lrs_dat *Q1, *Q2;             /* structure for holding static problem data            */
+  lrs_dat *Q1, *Q2;             /* structure for holding problem data            */
 
   lrs_mp_vector output1;        /* holds one line of output; ray,vertex,facet,linearity */
   lrs_mp_vector output2;        /* holds one line of output; ray,vertex,facet,linearity */
@@ -53,7 +53,7 @@ int lrs_solve_nash(game * g)
 /*********************************************************************************/
   FirstTime=TRUE;                       /* This is done for each new game */
 
-  Q1 = lrs_alloc_dat("LRS globals");    /* allocate and init structure for static problem data */
+  Q1 = lrs_alloc_dat("LRS globals");    /* allocate and init structure for problem data */
   if (Q1 == NULL) {
     return 0;
   }
@@ -202,8 +202,8 @@ long nash2_main(lrs_dic * P1, lrs_dat * Q1, lrs_dic * P2orig,
   long prune = FALSE;           /* if TRUE, getnextbasis will prune tree and backtrack  */
   long nlinearity;
   long *linearity;
-  static long firstwarning = TRUE;      /* FALSE if dual deg warning for Q2 already given     */
-  static long firstunbounded = TRUE;    /* FALSE if dual deg warning for Q2 already given     */
+  long firstwarning = TRUE;      /* FALSE if dual deg warning for Q2 already given     */
+  long firstunbounded = TRUE;    /* FALSE if dual deg warning for Q2 already given     */
 
   long i, j;
 
@@ -547,7 +547,7 @@ long getabasis2(lrs_dic * P, lrs_dat * Q, lrs_dic * P2orig, long order[], long l
 {
 /* 2015.10.10 linindex now preallocated and received as parameter so we can free it */
 
-//  static long firsttime = TRUE; /* stays true until first valid dictionary built */
+//  long firsttime = TRUE; /* stays true until first valid dictionary built */
 
   long i, j, k;
 /* assign local variables to structures */
@@ -766,7 +766,7 @@ int lrs_solve_nash_legacy (int argc, char *argv[])
 // Handles legacy input files
 {
   lrs_dic *P1;			/* structure for holding current dictionary and indices */
-  lrs_dat *Q1,*Q2;		/* structure for holding static problem data            */
+  lrs_dat *Q1,*Q2;		/* structure for holding problem data            */
 
   lrs_mp_vector output1;	/* holds one line of output; ray,vertex,facet,linearity */
   lrs_mp_vector output2;	/* holds one line of output; ray,vertex,facet,linearity */
@@ -806,7 +806,7 @@ int lrs_solve_nash_legacy (int argc, char *argv[])
 /*********************************************************************************/
 
 
-  Q1 = lrs_alloc_dat ("LRS globals");	/* allocate and init structure for static problem data */
+  Q1 = lrs_alloc_dat ("LRS globals");	/* allocate and init structure for problem data */
 
   if (Q1 == NULL)
     return 1;
