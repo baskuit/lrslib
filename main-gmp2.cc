@@ -28,10 +28,10 @@ int main()
 
 	game Game;
 
-	lrs_mp_vector row_data = alloc_data(rows + 2);
-	lrs_mp_vector col_data = alloc_data(cols + 2);
+	lrs_mp_vector row_data = alloc_data_gmp(rows + 2);
+	lrs_mp_vector col_data = alloc_data_gmp(cols + 2);
 
-	solve_2(&Game, rows, cols, row_payoff_data, col_payoff_data, row_data, col_data);
+	solve_gmp_2(&Game, rows, cols, row_payoff_data, col_payoff_data, row_data, col_data);
 
     std::cout << "row_strategy: " << std::endl;
     for (int row_idx = 0; row_idx < rows + 2; ++row_idx) {
@@ -45,8 +45,8 @@ int main()
     }
     std::cout << std::endl;
 
-	dealloc_data(row_data, rows + 2);
-	dealloc_data(col_data, cols + 2);
+	dealloc_data_gmp(row_data, rows + 2);
+	dealloc_data_gmp(col_data, cols + 2);
 
 	return 0;
 }

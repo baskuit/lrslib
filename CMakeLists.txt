@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 99)
 set (CMAKE_CXX_STANDARD 20)
 
 set (lrsnashlib128_sources
-src/lib-128.c
+src/lib-long.c
 src/lrsnashlib.c
 src/lrslib.c
 src/lrslong.c
@@ -36,8 +36,12 @@ target_compile_definitions(lrsnashlibgmp PUBLIC GMP)
 
 # Executables
 
-add_executable(main-128 main-128.cc)
-target_link_libraries(main-128 lrsnashlib128)
+add_executable(main main.cc)
+target_link_libraries(main lrsnashlib128)
+target_link_libraries(main lrsnashlibgmp)
+
+add_executable(main-long main-long.cc)
+target_link_libraries(main-long lrsnashlib128)
 
 add_executable(main-gmp1 main-gmp1.cc)
 target_link_libraries(main-gmp1 lrsnashlibgmp)

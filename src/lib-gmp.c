@@ -1,12 +1,12 @@
 #include "../include/lib-gmp.h"
 #include "float.h"
 
-lrs_mp_vector alloc_data(size_t size)
+lrs_mp_vector alloc_data_gmp(size_t size)
 {
     return lrs_alloc_mp_vector(size);
 }
 
-void dealloc_data(lrs_mp_vector data, size_t size)
+void dealloc_data_gmp(lrs_mp_vector data, size_t size)
 {
     lrs_clear_mp_vector(data, size);
 }
@@ -30,9 +30,16 @@ void init_game_gmp(game *g, int rows, int cols, int *row_num, int *row_den, int 
     }
 }
 
-void solve(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
+void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
 {
-    lrs_solve_nash_(g, row_data, col_data);
+    lrs_mp temp1, temp2;
+    lrs_alloc_mp(temp1);
+    lrs_alloc_mp(temp2);
+    __copy(temp1, Nin);
+    __copy(temp2, Din);
+    reduce(temp1, temp2);
+    lrs_clear_mp(temp1);
+    lrs_clear_mp(temp2);
 }
 
 int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
@@ -236,15 +243,17 @@ done:
     return 0;
 }
 
+void solve_gmp(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
+{
+    lrs_solve_nash_(g, row_data, col_data);
+}
+
 // New solve that skips the game stuff
 
 void lrs_set_row_mp_(lrs_dic *P, lrs_dat *Q, long row, lrs_mp_vector num, lrs_mp_vector den, long ineq)
-/* set row of dictionary using num and den arrays for rational input */
-/* ineq = 1 (GE)   - ordinary row  */
-/*      = 0 (EQ)   - linearity     */
 {
     lrs_mp Temp, mpone;
-    lrs_mp_vector oD; /* denominator for row  */
+    lrs_mp_vector oD;
 
     long i, j;
 
@@ -370,7 +379,7 @@ void BuildRep_(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *row_payoff_da
     FillFirstRow(P, Q, n);
 }
 
-int solve_2(game *g, int rows, int cols, mpq_t *row_payoff_data, mpq_t *col_payoff_data, mpz_t *row_data, mpz_t *col_data)
+int solve_gmp_2(game *g, int rows, int cols, mpq_t *row_payoff_data, mpq_t *col_payoff_data, mpz_t *row_data, mpz_t *col_data)
 {
     lrs_init("*lrsnash:");
     g->nstrats[0] = rows;
@@ -575,16 +584,4 @@ done:
 
     free(linindex);
     return 0;
-}
-
-void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
-{
-    lrs_mp temp1, temp2;
-    lrs_alloc_mp(temp1);
-    lrs_alloc_mp(temp2);
-    __copy(temp1, Nin);
-    __copy(temp2, Din);
-    reduce(temp1, temp2);
-    lrs_clear_mp(temp1);
-    lrs_clear_mp(temp2);
 }

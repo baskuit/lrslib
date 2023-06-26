@@ -20,10 +20,10 @@ int main()
 		row_num, row_den,
 		col_num, col_den);
 
-	mpz_t* row_data = alloc_data(rows + 2);
-	mpz_t* col_data = alloc_data(cols + 2);
+	mpz_t* row_data = alloc_data_gmp(rows + 2);
+	mpz_t* col_data = alloc_data_gmp(cols + 2);
 
-	solve(&Game, row_data, col_data);
+	solve_gmp(&Game, row_data, col_data);
 
     std::cout << "row_strategy: " << std::endl;
     for (int row_idx = 0; row_idx < rows + 2; ++row_idx) {
@@ -37,8 +37,8 @@ int main()
     }
     std::cout << std::endl;
 
-	dealloc_data(row_data, rows + 2);
-	dealloc_data(col_data, cols + 2);
+	dealloc_data_gmp(row_data, rows + 2);
+	dealloc_data_gmp(col_data, cols + 2);
 
 	return 0;
 }

@@ -1,17 +1,17 @@
-#include "../include/lib-128.h"
+#include "../include/lib-long.h"
 #include "float.h"
 
-lrs_mp_vector alloc_data(size_t size)
+lrs_mp_vector alloc_data_long(size_t size)
 {
     return lrs_alloc_mp_vector(size);
 }
 
-void dealloc_data(lrs_mp_vector data, size_t size)
+void dealloc_data_long(lrs_mp_vector data, size_t size)
 {
     lrs_clear_mp_vector(data, size);
 }
 
-void init_game(game *g, int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den)
+void init_game_long(game *g, int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den)
 {
     lrs_init("*lrsnash:");
     g->nstrats[0] = rows;
@@ -30,12 +30,15 @@ void init_game(game *g, int rows, int cols, int *row_num, int *row_den, int *col
     }
 }
 
-void solve(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
+void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
 {
-    lrs_solve_nash_(g, row_data, col_data);
+    lrs_mp Nt, Dt; // TODO can we remove this?
+    __copy(Nt, Nin);
+    __copy(Dt, Din);
+    reduce(Nt, Dt);
 }
 
-int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
+int lrs_solve_nash_long(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
 {
     lrs_dic *P1;      /* structure for holding current dictionary and indices */
     lrs_dat *Q1, *Q2; /* structure for holding problem data            */
@@ -247,11 +250,7 @@ done:
     return 0;
 }
 
-void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
-/*print the long precision rational Nt/Dt  */
+void solve_long(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
 {
-    lrs_mp Nt, Dt;
-    __copy(Nt, Nin);
-    __copy(Dt, Din);
-    reduce(Nt, Dt);
+    lrs_solve_nash_long(g, row_data, col_data);
 }
