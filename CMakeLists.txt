@@ -31,8 +31,8 @@ target_link_libraries(lrsnashlibgmp INTERFACE ${GMP_LIBRARY})
 target_compile_definitions(lrsnashlib128 PUBLIC B128 LRSLONG SAFE)
 target_compile_definitions(lrsnashlibgmp PUBLIC GMP)
 
-add_executable(main main.cc)
-target_link_libraries(main lrsnashlibgmp)
+add_executable(main-gmp main-gmp.cc)
+target_link_libraries(main-gmp lrsnashlibgmp)
 
 add_executable(lrsnash lrsnash.c)
 target_link_libraries(lrsnash lrsnashlibgmp)

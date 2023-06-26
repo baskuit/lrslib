@@ -238,7 +238,7 @@ done:
 
 // New solve that skips the game stuff
 
-void lrs_set_row_mp(lrs_dic *P, lrs_dat *Q, long row, lrs_mp_vector num, lrs_mp_vector den, long ineq)
+void lrs_set_row_mp_(lrs_dic *P, lrs_dat *Q, long row, lrs_mp_vector num, lrs_mp_vector den, long ineq)
 /* set row of dictionary using num and den arrays for rational input */
 /* ineq = 1 (GE)   - ordinary row  */
 /*      = 0 (EQ)   - linearity     */
@@ -319,44 +319,50 @@ void lrs_set_row_mp(lrs_dic *P, lrs_dat *Q, long row, lrs_mp_vector num, lrs_mp_
     lrs_clear_mp(mpone);
 }
 
-void FillConstraintRowsGmp(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *row_payoff_data, const mpq_t *col_payoff_data, int p1, int p2, int firstRow)
+void FillConstraintRows_(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *row_payoff_data, const mpq_t *col_payoff_data, int p1, int p2, int firstRow)
 {
     const int MAXCOL = 1000; /* maximum number of columns */
-    long num[MAXCOL], den[MAXCOL];
-    ratnum x;
+    lrs_mp_vector num = lrs_alloc_mp_vector(MAXCOL);
+    lrs_mp_vector den = lrs_alloc_mp_vector(MAXCOL);
+    mpq_t x;
+    mpq_init(x);
     int row, s, t;
 
     for (row = firstRow; row < firstRow + g->nstrats[p1]; row++)
     {
-        num[0] = 0;
-        den[0] = 1;
+        mpz_set_ui(num[0], 0);
+        mpz_set_ui(den[0], 1);
         s = row - firstRow;
         for (t = 0; t < g->nstrats[p2]; t++)
         {
-            x = p1 == ROW ? g->payoff[s][t][p1] : g->payoff[t][s][p1]; // TODO lol
-            num[t + 1] = -x.num;
-            den[t + 1] = x.den;
+            int idx = s * g->nstrats[p2] + t;
+            int idx_ = t * g->nstrats[p2] + s;
+
+            mpq_set(x, p1 == ROW ? row_payoff_data[idx] : col_payoff_data[idx_]); // TODO lol
+            mpq_get_num(num[t+1], x);
+            mpz_neg(num[t+1], num[t+1]);
+            mpq_get_den(den[t+1], x);
         }
-        num[g->nstrats[p2] + 1] = 1;
-        den[g->nstrats[p2] + 1] = 1;
-        lrs_set_row(P, Q, row, num, den, GE);
+        mpz_set_ui(num[g->nstrats[p2] + 1], 1);
+        mpz_set_ui(den[g->nstrats[p2] + 1], 1);
+        lrs_set_row_mp_(P, Q, row, num, den, GE);
     }
 }
 
-void BuildRepGmp(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *row_payoff_data, const mpq_t *col_payoff_data, int p1, int p2)
+void BuildRep_(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *row_payoff_data, const mpq_t *col_payoff_data, int p1, int p2)
 {
     long m = Q->m; /* number of inequalities      */
     long n = Q->n;
 
     if (p1 == 0)
     {
-        FillConstraintRowsGmp(P, Q, g, row_payoff_data, col_payoff_data, p1, p2, 1);
+        FillConstraintRows_(P, Q, g, row_payoff_data, col_payoff_data, p1, p2, 1);
         FillNonnegativityRows(P, Q, g->nstrats[p1] + 1, g->nstrats[ROW] + g->nstrats[COL], n);
     }
     else
     {
         FillNonnegativityRows(P, Q, 1, g->nstrats[p2], n);
-        FillConstraintRowsGmp(P, Q, g, row_payoff_data, col_payoff_data, p1, p2, g->nstrats[p2] + 1); // 1 here
+        FillConstraintRows_(P, Q, g, row_payoff_data, col_payoff_data, p1, p2, g->nstrats[p2] + 1); // 1 here
     }
     FillLinearityRow(P, Q, m, n);
 
@@ -408,7 +414,7 @@ int solve_2(game *g, int rows, int cols, mpq_t *row_payoff_data, mpq_t *col_payo
         return 0;
     }
 
-    BuildRepGmp(P1, Q1, g, row_payoff_data, col_payoff_data, 1, 0);
+    BuildRep_(P1, Q1, g, row_payoff_data, col_payoff_data, 1, 0);
 
     output1 = lrs_alloc_mp_vector(Q1->n + Q1->m); /* output holds one line of output from dictionary     */
 
@@ -431,7 +437,7 @@ int solve_2(game *g, int rows, int cols, mpq_t *row_payoff_data, mpq_t *col_payo
     {
         return 0;
     }
-    BuildRepGmp(P2orig, Q2, g, row_payoff_data, col_payoff_data, 0, 1);
+    BuildRep_(P2orig, Q2, g, row_payoff_data, col_payoff_data, 0, 1);
     A2orig = P2orig->A;
 
     output2 = lrs_alloc_mp_vector(Q1->n + Q1->m); /* output holds one line of output from dictionary     */
