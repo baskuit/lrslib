@@ -4,7 +4,7 @@ project(lrsnash)
 set(CMAKE_C_STANDARD 99)
 set (CMAKE_CXX_STANDARD 20)
 
-set (lrsnashlib128_sources
+set (lrsnashliblong_sources
 src/lib-long.c
 src/lrsnashlib.c
 src/lrslib.c
@@ -20,10 +20,10 @@ src/lrsgmp.c
 src/lrsdriver.c
 )
 
-add_library(lrsnashlib128 ${lrsnashlib128_sources})
+add_library(lrsnashliblong ${lrsnashliblong_sources})
 add_library(lrsnashlibgmp ${lrsnashlibgmp_sources})
 
-target_include_directories(lrsnashlib128 INTERFACE .)
+target_include_directories(lrsnashliblong INTERFACE .)
 target_include_directories(lrsnashlibgmp INTERFACE .)
 
 find_library(GMP_LIBRARY gmp)
@@ -31,17 +31,17 @@ target_link_libraries(lrsnashlibgmp INTERFACE ${GMP_LIBRARY})
 
 # use the flag below to set data type for lrsnash.
 # top is 128 bit arithmetic, bottom is mpz_t from the gmp library
-target_compile_definitions(lrsnashlib128 PUBLIC B128 LRSLONG SAFE)
+target_compile_definitions(lrsnashliblong PUBLIC B128 LRSLONG SAFE)
 target_compile_definitions(lrsnashlibgmp PUBLIC GMP)
 
 # Executables
 
 add_executable(main main.cc)
-target_link_libraries(main lrsnashlib128)
+target_link_libraries(main lrsnashliblong)
 target_link_libraries(main lrsnashlibgmp)
 
 add_executable(main-long main-long.cc)
-target_link_libraries(main-long lrsnashlib128)
+target_link_libraries(main-long lrsnashliblong)
 
 add_executable(main-gmp1 main-gmp1.cc)
 target_link_libraries(main-gmp1 lrsnashlibgmp)
