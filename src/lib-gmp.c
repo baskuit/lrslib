@@ -238,20 +238,44 @@ done:
 
 // New solve that skips the game stuff
 
-void BuildRepGmp(lrs_dic *P, lrs_dat *Q, const mpq_t *row_data, const mpq_t *col_data, int p1, int p2)
+void FillConstraintRowsGmp(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *row_data, const mpq_t *col_data, int p1, int p2, int firstRow)
+{
+    const int MAXCOL = 1000; /* maximum number of columns */
+    long num[MAXCOL], den[MAXCOL];
+    ratnum x;
+    int row, s, t;
+
+    for (row = firstRow; row < firstRow + g->nstrats[p1]; row++)
+    {
+        num[0] = 0;
+        den[0] = 1;
+        s = row - firstRow;
+        for (t = 0; t < g->nstrats[p2]; t++)
+        {
+            x = p1 == ROW ? g->payoff[s][t][p1] : g->payoff[t][s][p1]; //TODO lol
+            num[t + 1] = -x.num;
+            den[t + 1] = x.den;
+        }
+        num[g->nstrats[p2] + 1] = 1;
+        den[g->nstrats[p2] + 1] = 1;
+        lrs_set_row(P, Q, row, num, den, GE);
+    }
+}
+
+void BuildRepGmp(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *row_data, const mpq_t *col_data, int p1, int p2)
 {
     long m = Q->m; /* number of inequalities      */
     long n = Q->n;
 
     if (p1 == 0)
     {
-        FillConstraintRows(P, Q, g, p1, p2, 1);
+        FillConstraintRowsGmp(P, Q, g, row_data, col_data, p1, p2, 1);
         FillNonnegativityRows(P, Q, g->nstrats[p1] + 1, g->nstrats[ROW] + g->nstrats[COL], n);
     }
     else
     {
         FillNonnegativityRows(P, Q, 1, g->nstrats[p2], n);
-        FillConstraintRows(P, Q, g, p1, p2, g->nstrats[p2] + 1); // 1 here
+        FillConstraintRowsGmp(P, Q, g, row_data, col_data, p1, p2, g->nstrats[p2] + 1); // 1 here
     }
     FillLinearityRow(P, Q, m, n);
 
@@ -259,7 +283,7 @@ void BuildRepGmp(lrs_dic *P, lrs_dat *Q, const mpq_t *row_data, const mpq_t *col
     FillFirstRow(P, Q, n);
 }
 
-void solve_2(game *g, int rows, int cols, mpq_t *row_data, mpq_t *col_data)
+int solve_2(game *g, int rows, int cols, mpq_t *row_data, mpq_t *col_data)
 {
     lrs_init("*lrsnash:");
     g->nstrats[0] = rows;
@@ -303,7 +327,7 @@ void solve_2(game *g, int rows, int cols, mpq_t *row_data, mpq_t *col_data)
         return 0;
     }
 
-    BuildRepGmp(P1, Q1, row_data, col_data, 1, 0);
+    BuildRepGmp(P1, Q1, g, row_data, col_data, 1, 0);
 
     output1 = lrs_alloc_mp_vector(Q1->n + Q1->m); /* output holds one line of output from dictionary     */
 
@@ -326,7 +350,7 @@ void solve_2(game *g, int rows, int cols, mpq_t *row_data, mpq_t *col_data)
     {
         return 0;
     }
-    BuildRepGmp(P2orig, Q2, row_data, col_data, 0, 1);
+    BuildRepGmp(P2orig, Q2, g, row_data, col_data, 0, 1);
     A2orig = P2orig->A;
 
     output2 = lrs_alloc_mp_vector(Q1->n + Q1->m); /* output holds one line of output from dictionary     */
@@ -465,7 +489,6 @@ done:
     free(linindex);
     return 0;
 }
-
 
 void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
 {
