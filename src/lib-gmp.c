@@ -238,7 +238,88 @@ done:
 
 // New solve that skips the game stuff
 
-void FillConstraintRowsGmp(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *row_data, const mpq_t *col_data, int p1, int p2, int firstRow)
+void lrs_set_row_mp(lrs_dic *P, lrs_dat *Q, long row, lrs_mp_vector num, lrs_mp_vector den, long ineq)
+/* set row of dictionary using num and den arrays for rational input */
+/* ineq = 1 (GE)   - ordinary row  */
+/*      = 0 (EQ)   - linearity     */
+{
+    lrs_mp Temp, mpone;
+    lrs_mp_vector oD; /* denominator for row  */
+
+    long i, j;
+
+    /* assign local variables to structures */
+
+    lrs_mp_matrix A;
+    lrs_mp_vector Gcd, Lcm;
+    long hull;
+    long m, d;
+    lrs_alloc_mp(Temp);
+    lrs_alloc_mp(mpone);
+    hull = Q->hull;
+    A = P->A;
+    m = P->m;
+    d = P->d;
+    Gcd = Q->Gcd;
+    Lcm = Q->Lcm;
+
+    oD = lrs_alloc_mp_vector(d);
+    itomp(ONE, mpone);
+    itomp(ONE, oD[0]);
+
+    i = row;
+    itomp(ONE, Lcm[i]);         /* Lcm of denominators */
+    itomp(ZERO, Gcd[i]);        /* Gcd of numerators */
+    for (j = hull; j <= d; j++) /* hull data copied to cols 1..d */
+    {
+        __copy(A[i][j], num[j - hull]);
+        __copy(oD[j], den[j - hull]);
+        if (!one(oD[j]))
+            lcm(Lcm[i], oD[j]); /* update lcm of denominators */
+        __copy(Temp, A[i][j]);
+        gcd(Gcd[i], Temp); /* update gcd of numerators   */
+    }
+
+    if (hull)
+    {
+        itomp(ZERO, A[i][0]);             /*for hull, we have to append an extra column of zeroes */
+        if (!one(A[i][1]) || !one(oD[1])) /* all rows must have a one in column one */
+            Q->polytope = FALSE;
+    }
+    if (!__zero(A[i][hull]))    /* for H-rep, are zero in column 0     */
+        Q->homogeneous = FALSE; /* for V-rep, all zero in column 1     */
+
+    storesign(Gcd[i], POS);
+    storesign(Lcm[i], POS);
+    if (mp_greater(Gcd[i], mpone) || mp_greater(Lcm[i], mpone))
+        for (j = 0; j <= d; j++)
+        {
+            exactdivint(A[i][j], Gcd[i], Temp); /*reduce numerators by Gcd  */
+            mulint(Lcm[i], Temp, Temp);         /*remove denominators */
+            exactdivint(Temp, oD[j], A[i][j]);  /*reduce by former denominator */
+        }
+
+    if (ineq == EQ) /* input is linearity */
+    {
+        Q->linearity[Q->nlinearity] = row;
+        Q->nlinearity++;
+    }
+
+    /* 2010.4.26   Set Gcd and Lcm for the non-existant rows when nonnegative set */
+
+    if (Q->nonnegative && row == m)
+        for (j = 1; j <= d; j++)
+        {
+            itomp(ONE, Lcm[m + j]);
+            itomp(ONE, Gcd[m + j]);
+        }
+
+    lrs_clear_mp_vector(oD, d);
+    lrs_clear_mp(Temp);
+    lrs_clear_mp(mpone);
+}
+
+void FillConstraintRowsGmp(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *row_payoff_data, const mpq_t *col_payoff_data, int p1, int p2, int firstRow)
 {
     const int MAXCOL = 1000; /* maximum number of columns */
     long num[MAXCOL], den[MAXCOL];
@@ -252,7 +333,7 @@ void FillConstraintRowsGmp(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *r
         s = row - firstRow;
         for (t = 0; t < g->nstrats[p2]; t++)
         {
-            x = p1 == ROW ? g->payoff[s][t][p1] : g->payoff[t][s][p1]; //TODO lol
+            x = p1 == ROW ? g->payoff[s][t][p1] : g->payoff[t][s][p1]; // TODO lol
             num[t + 1] = -x.num;
             den[t + 1] = x.den;
         }
@@ -262,20 +343,20 @@ void FillConstraintRowsGmp(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *r
     }
 }
 
-void BuildRepGmp(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *row_data, const mpq_t *col_data, int p1, int p2)
+void BuildRepGmp(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *row_payoff_data, const mpq_t *col_payoff_data, int p1, int p2)
 {
     long m = Q->m; /* number of inequalities      */
     long n = Q->n;
 
     if (p1 == 0)
     {
-        FillConstraintRowsGmp(P, Q, g, row_data, col_data, p1, p2, 1);
+        FillConstraintRowsGmp(P, Q, g, row_payoff_data, col_payoff_data, p1, p2, 1);
         FillNonnegativityRows(P, Q, g->nstrats[p1] + 1, g->nstrats[ROW] + g->nstrats[COL], n);
     }
     else
     {
         FillNonnegativityRows(P, Q, 1, g->nstrats[p2], n);
-        FillConstraintRowsGmp(P, Q, g, row_data, col_data, p1, p2, g->nstrats[p2] + 1); // 1 here
+        FillConstraintRowsGmp(P, Q, g, row_payoff_data, col_payoff_data, p1, p2, g->nstrats[p2] + 1); // 1 here
     }
     FillLinearityRow(P, Q, m, n);
 
@@ -283,7 +364,7 @@ void BuildRepGmp(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *row_data, c
     FillFirstRow(P, Q, n);
 }
 
-int solve_2(game *g, int rows, int cols, mpq_t *row_data, mpq_t *col_data)
+int solve_2(game *g, int rows, int cols, mpq_t *row_payoff_data, mpq_t *col_payoff_data, mpz_t *row_data, mpz_t *col_data)
 {
     lrs_init("*lrsnash:");
     g->nstrats[0] = rows;
@@ -327,7 +408,7 @@ int solve_2(game *g, int rows, int cols, mpq_t *row_data, mpq_t *col_data)
         return 0;
     }
 
-    BuildRepGmp(P1, Q1, g, row_data, col_data, 1, 0);
+    BuildRepGmp(P1, Q1, g, row_payoff_data, col_payoff_data, 1, 0);
 
     output1 = lrs_alloc_mp_vector(Q1->n + Q1->m); /* output holds one line of output from dictionary     */
 
@@ -350,7 +431,7 @@ int solve_2(game *g, int rows, int cols, mpq_t *row_data, mpq_t *col_data)
     {
         return 0;
     }
-    BuildRepGmp(P2orig, Q2, g, row_data, col_data, 0, 1);
+    BuildRepGmp(P2orig, Q2, g, row_payoff_data, col_payoff_data, 0, 1);
     A2orig = P2orig->A;
 
     output2 = lrs_alloc_mp_vector(Q1->n + Q1->m); /* output holds one line of output from dictionary     */
