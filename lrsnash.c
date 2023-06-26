@@ -49,7 +49,8 @@ char LegacyMsg[] =
 #include <ctype.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include "src/lib.h"
+
+#include "src/lib-128.h"
 
 //========================================================================
 // Games

@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 99)
 set (CMAKE_CXX_STANDARD 20)
 
 set (lrsnashlib128_sources
-src/lib.c
+src/lib-128.c
 src/lrsnashlib.c
 src/lrslib.c
 src/lrslong.c
@@ -13,7 +13,7 @@ src/lrsdriver.c
 )
 
 set (lrsnashlibgmp_sources
-src/lib.c
+src/lib-128.c
 src/lrsnashlib.c
 src/lrslib.c
 src/lrsgmp.c

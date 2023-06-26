@@ -16,8 +16,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "lib.h"
-
+#include "lrsdriver.h"
+#include "lrslib.h"
+#include "lrsnashlib.h"
 
 long FirstTime; /* set this to true for every new game to be solved */
 long Debug_flag;
