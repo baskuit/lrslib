@@ -63,8 +63,8 @@ void
 lcm (lrs_mp a, lrs_mp b)			/* a = least common multiple of a, b; b is preserved */
 {
   lrs_mp u, v;
-  copy_ (u, a);
-  copy_ (v, b);
+  __copy(u, a);
+  __copy(v, b);
   gcd (u, v);
   exactdivint (a, u, v);		/* v=a/u   a contains remainder = 0 */
   mulint (v, b, a);
@@ -82,12 +82,12 @@ void
 reduce (lrs_mp Na, lrs_mp Da)	/* reduces Na/Da by gcd(Na,Da) */
 {
   lrs_mp Nb, Db, Nc, Dc;
-  copy_ (Nb, Na);
-  copy_ (Db, Da);
+  __copy(Nb, Na);
+  __copy(Db, Da);
   storesign (Nb, POS);
   storesign (Db, POS);
-  copy_ (Nc, Na);
-  copy_ (Dc, Da);
+  __copy(Nc, Na);
+  __copy(Dc, Da);
   gcd (Nb, Db);			/* Nb is the gcd(Na,Da) */
   exactdivint (Nc, Nb, Na);
   exactdivint (Dc, Nb, Da);
@@ -97,7 +97,7 @@ void
 reduceint (lrs_mp Na, lrs_mp Da)	/* divide Na by Da and return */
 {
   lrs_mp Temp;
-  copy_ (Temp, Na);
+  __copy(Temp, Na);
   exactdivint (Temp, Da, Na);
 }
 
@@ -334,8 +334,8 @@ char *cprat (const char *name, lrs_mp Nin, lrs_mp Din)
   lrs_mp Nt, Dt;
   lrs_alloc_mp (Nt); lrs_alloc_mp (Dt);
 
-  copy_ (Nt, Nin);
-  copy_ (Dt, Din);
+  __copy(Nt, Nin);
+  __copy(Dt, Din);
   reduce (Nt, Dt);
 
   num = mpgetstr10(NULL, Nt);
@@ -419,8 +419,8 @@ prat (const char *name, lrs_mp Nin, lrs_mp Din)
      /*print the long precision rational Nt/Dt  */
 {
   lrs_mp Nt, Dt;
-  copy_ (Nt, Nin);
-  copy_ (Dt, Din);
+  __copy(Nt, Nin);
+  __copy(Dt, Din);
   reduce (Nt, Dt);
   if (sign (Nt) != NEG)
     fprintf (lrs_ofp, " ");
@@ -600,20 +600,20 @@ reducearray (lrs_mp_vector p, long n)
   lrs_mp Temp;
   long i = 0L;
 
-  while ((i < n) && zero_ (p[i]))
+  while ((i < n) && __zero(p[i]))
     i++;
   if (i == n)
     return;
 
-  copy_ (divisor, p[i]);
+  __copy(divisor, p[i]);
   storesign (divisor, POS);
   i++;
 
   while (i < n)
     {
-      if (!zero_ (p[i]))
+      if (!__zero(p[i]))
 	{
-	  copy_ (Temp, p[i]);
+	  __copy(Temp, p[i]);
 	  storesign (Temp, POS);
 	  gcd (divisor, Temp);
 	}
@@ -622,7 +622,7 @@ reducearray (lrs_mp_vector p, long n)
 
 /* reduce by divisor */
   for (i = 0; i < n; i++)
-    if (!zero_ (p[i]))
+    if (!__zero(p[i]))
       reduceint (p[i], divisor);
 }				/* end of reducearray */
 

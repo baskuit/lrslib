@@ -20,9 +20,11 @@ src/lrsgmp.c
 src/lrsdriver.c
 )
 
-
 add_library(lrsnashlib128 ${lrsnashlib128_sources})
 add_library(lrsnashlibgmp ${lrsnashlibgmp_sources})
+
+find_library(GMP_LIBRARY gmp)
+target_link_libraries(lrsnashlibgmp INTERFACE ${GMP_LIBRARY})
 
 # use the flag below to set data type for lrsnash.
 # top is 128 bit arithmetic, bottom is mpz_t from the gmp library
@@ -30,7 +32,7 @@ target_compile_definitions(lrsnashlib128 PUBLIC B128 LRSLONG SAFE)
 target_compile_definitions(lrsnashlibgmp PUBLIC GMP)
 
 add_executable(main main.cc)
-target_link_libraries(main lrsnashlib128)
+target_link_libraries(main lrsnashlibgmp)
 
 add_executable(lrsnash lrsnash.c)
-target_link_libraries(lrsnash lrsnaslrsnashlib128hlib)
+target_link_libraries(lrsnash lrsnashlibgmp)

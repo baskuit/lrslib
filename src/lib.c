@@ -137,7 +137,7 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
             nlinearity = 0;
             for (i = Q1->lastdv + 1; i <= P1->m; i++)
             {
-                if (!zero_(P1->A[P1->Row[i]][0]))
+                if (!__zero(P1->A[P1->Row[i]][0]))
                 {
                     j = Q1->inequality[P1->B[i] - Q1->lastdv];
                     if (Q1->nlinearity == 0 || j < Q1->linearity[0])
@@ -171,7 +171,7 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                     long i1;
                     long origin = TRUE;
                     for (i1 = 1; i1 < Q2->n; i1++)
-                        if (!zero_(output2[i1]))
+                        if (!__zero(output2[i1]))
                             origin = FALSE;
 
                     if (origin)
@@ -205,7 +205,7 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                 long origin = TRUE;
                 /* do not print the origin for either player */
                 for (i1 = 1; i1 < Q1->n; i1++)
-                    if (!zero_(output1[i1]))
+                    if (!__zero(output1[i1]))
                         origin = FALSE;
 
                 if (origin)
@@ -251,7 +251,7 @@ void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
 /*print the long precision rational Nt/Dt  */
 {
     lrs_mp Nt, Dt;
-    copy_(Nt, Nin);
-    copy_(Dt, Din);
+    __copy(Nt, Nin);
+    __copy(Dt, Din);
     reduce(Nt, Dt);
 }

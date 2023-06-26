@@ -27,13 +27,13 @@ int main()
 
     std::cout << "row_strategy: " << std::endl;
     for (int row_idx = 0; row_idx < rows + 2; ++row_idx) {
-        std::cout <<  row_data[row_idx] << ' ';
+        // std::cout <<  row_data[row_idx] << ' ';
     }
     std::cout << std::endl;
 
     std::cout << "col_strategy: " << std::endl;
     for (int col_idx = 0; col_idx < cols + 2; ++col_idx) {
-        std::cout << col_data[col_idx] << ' ';
+        // std::cout << col_data[col_idx] << ' ';
     }
     std::cout << std::endl;
 
