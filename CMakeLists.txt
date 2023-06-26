@@ -13,7 +13,7 @@ src/lrsdriver.c
 )
 
 set (lrsnashlibgmp_sources
-src/lib-128.c
+src/lib-gmp.c
 src/lrsnashlib.c
 src/lrslib.c
 src/lrsgmp.c
