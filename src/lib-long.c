@@ -30,7 +30,7 @@ void init_game_long(game *g, int rows, int cols, int *row_num, int *row_den, int
     }
 }
 
-void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
+void prat_long(const char *name, lrs_mp Nin, lrs_mp Din)
 {
     lrs_mp Nt, Dt; // TODO can we remove this?
     __copy(Nt, Nin);
@@ -168,7 +168,7 @@ int lrs_solve_nash_long(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                 if (!prune && lrs_getsolution(P2, Q2, output2, col))
                 {
                     if (Q2->verbose)
-                        prat_(" \np1's obj value: ", P2->objnum, P2->objden);
+                        prat_long(" \np1's obj value: ", P2->objnum, P2->objden);
 
                     long lrs_nashoutput1 = TRUE;
                     long i1;
@@ -183,7 +183,7 @@ int lrs_solve_nash_long(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                     if (lrs_nashoutput1)
                     {
                         for (i1 = 1; i1 < Q2->n; i1++)
-                            prat_("", output2[i1], output2[0]);
+                            prat_long("", output2[i1], output2[0]);
 
                         for (i1 = 0; i1 < Q2->n; i1++)
                         {
@@ -201,7 +201,7 @@ int lrs_solve_nash_long(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
             if (numequilib > oldnum || Q1->verbose)
             {
                 if (Q1->verbose)
-                    prat_(" \np2's obj value: ", P1->objnum, P1->objden);
+                    prat_long(" \np2's obj value: ", P1->objnum, P1->objden);
 
                 long lrs_nashoutput2 = TRUE;
                 long i1;
@@ -218,7 +218,7 @@ int lrs_solve_nash_long(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                 {
                     // fprintf(lrs_ofp, "%ld ", 1L);
                     for (i1 = 1; i1 < Q1->n; i1++)
-                        prat_("", output1[i1], output1[0]);
+                        prat_long("", output1[i1], output1[0]);
 
                     for (i1 = 0; i1 < Q1->n; i1++)
                     {

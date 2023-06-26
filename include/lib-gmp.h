@@ -18,9 +18,9 @@ extern "C"
 
     extern int solve_gmp_2(game *g, int rows, int cols, mpq_t *row_payoff_data, mpq_t *col_payoff_data, mpz_t *row_data, mpz_t *col_data);
 
-    extern lrs_mp_vector alloc_data_gmp(size_t size);
+    extern mpz_t *alloc_data_gmp(size_t size);
 
-    extern void dealloc_data_gmp(lrs_mp_vector data, size_t size);
+    extern void dealloc_data_gmp(mpz_t *data, size_t size);
 
 #ifdef __cplusplus
 }

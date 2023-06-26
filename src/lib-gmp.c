@@ -30,7 +30,7 @@ void init_game_gmp(game *g, int rows, int cols, int *row_num, int *row_den, int 
     }
 }
 
-void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
+void prat_gmp(const char *name, lrs_mp Nin, lrs_mp Din)
 {
     lrs_mp temp1, temp2;
     lrs_alloc_mp(temp1);
@@ -42,7 +42,7 @@ void prat_(const char *name, lrs_mp Nin, lrs_mp Din)
     lrs_clear_mp(temp2);
 }
 
-int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
+int lrs_solve_nash_gmp(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
 {
     lrs_dic *P1;      /* structure for holding current dictionary and indices */
     lrs_dat *Q1, *Q2; /* structure for holding problem data            */
@@ -183,7 +183,7 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                     if (lrs_nashoutput1)
                     {
                         for (i1 = 1; i1 < Q2->n; i1++)
-                            prat_("", output2[i1], output2[0]);
+                            prat_gmp("", output2[i1], output2[0]);
 
                         for (i1 = 0; i1 < Q2->n; i1++)
                         {
@@ -214,7 +214,7 @@ int lrs_solve_nash_(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                 if (lrs_nashoutput2)
                 {
                     for (i1 = 1; i1 < Q1->n; i1++)
-                        prat_("", output1[i1], output1[0]);
+                        prat_gmp("", output1[i1], output1[0]);
 
                     for (i1 = 0; i1 < Q1->n; i1++)
                     {
@@ -245,7 +245,7 @@ done:
 
 void solve_gmp(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
 {
-    lrs_solve_nash_(g, row_data, col_data);
+    lrs_solve_nash_gmp(g, row_data, col_data);
 }
 
 // New solve that skips the game stuff
@@ -348,13 +348,14 @@ void FillConstraintRows_(lrs_dic *P, lrs_dat *Q, const game *g, const mpq_t *row
             int idx_ = t * g->nstrats[p2] + s;
 
             mpq_set(x, p1 == ROW ? row_payoff_data[idx] : col_payoff_data[idx_]); // TODO lol
-            mpq_get_num(num[t+1], x);
-            mpz_neg(num[t+1], num[t+1]);
-            mpq_get_den(den[t+1], x);
+            mpq_get_num(num[t + 1], x);
+            mpz_neg(num[t + 1], num[t + 1]);
+            mpq_get_den(den[t + 1], x);
         }
         mpz_set_ui(num[g->nstrats[p2] + 1], 1);
         mpz_set_ui(den[g->nstrats[p2] + 1], 1);
-        lrs_set_row_mp_(P, Q, row, num, den, GE);
+
+        lrs_set_row_mp(P, Q, row, num, den, GE);
     }
 }
 
@@ -526,7 +527,7 @@ int solve_gmp_2(game *g, int rows, int cols, mpq_t *row_payoff_data, mpq_t *col_
                     if (lrs_nashoutput1)
                     {
                         for (i1 = 1; i1 < Q2->n; i1++)
-                            prat_("", output2[i1], output2[0]);
+                            prat_gmp("", output2[i1], output2[0]);
 
                         for (i1 = 0; i1 < Q2->n; i1++)
                         {
@@ -557,7 +558,7 @@ int solve_gmp_2(game *g, int rows, int cols, mpq_t *row_payoff_data, mpq_t *col_
                 if (lrs_nashoutput2)
                 {
                     for (i1 = 1; i1 < Q1->n; i1++)
-                        prat_("", output1[i1], output1[0]);
+                        prat_gmp("", output1[i1], output1[0]);
 
                     for (i1 = 0; i1 < Q1->n; i1++)
                     {
