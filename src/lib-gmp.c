@@ -1,4 +1,4 @@
-#include "lib-gmp.h"
+#include "../include/lib-gmp.h"
 #include "float.h"
 
 lrs_mp_vector alloc_data(size_t size)
@@ -11,7 +11,7 @@ void dealloc_data(lrs_mp_vector data, size_t size)
     lrs_clear_mp_vector(data, size);
 }
 
-void init_game(game *g, int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den)
+void init_game_gmp(game *g, int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den)
 {
     lrs_init("*lrsnash:");
     g->nstrats[0] = rows;

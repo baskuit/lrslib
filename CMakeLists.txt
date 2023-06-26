@@ -23,6 +23,9 @@ src/lrsdriver.c
 add_library(lrsnashlib128 ${lrsnashlib128_sources})
 add_library(lrsnashlibgmp ${lrsnashlibgmp_sources})
 
+target_include_directories(lrsnashlib128 INTERFACE .)
+target_include_directories(lrsnashlibgmp INTERFACE .)
+
 find_library(GMP_LIBRARY gmp)
 target_link_libraries(lrsnashlibgmp INTERFACE ${GMP_LIBRARY})
 
@@ -31,8 +34,16 @@ target_link_libraries(lrsnashlibgmp INTERFACE ${GMP_LIBRARY})
 target_compile_definitions(lrsnashlib128 PUBLIC B128 LRSLONG SAFE)
 target_compile_definitions(lrsnashlibgmp PUBLIC GMP)
 
-add_executable(main-gmp main-gmp.cc)
-target_link_libraries(main-gmp lrsnashlibgmp)
+# Executables
+
+add_executable(main-128 main-128.cc)
+target_link_libraries(main-128 lrsnashlib128)
+
+add_executable(main-gmp1 main-gmp1.cc)
+target_link_libraries(main-gmp1 lrsnashlibgmp)
+
+add_executable(main-gmp2 main-gmp2.cc)
+target_link_libraries(main-gmp2 lrsnashlibgmp)
 
 add_executable(lrsnash lrsnash.c)
 target_link_libraries(lrsnash lrsnashlibgmp)

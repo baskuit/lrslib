@@ -1,18 +1,16 @@
-#include "lrsdriver.h"
-#include "lrslib.h"
-#include "lrsnashlib.h"
+#include "../src/lrsdriver.h"
+#include "../src/lrslib.h"
+#include "../src/lrsnashlib.h"
 
-#ifndef LIBLRSNASH
-#define LIBLRSNASH
+#ifndef LIBLRSNASH128
+#define LIBLRSNASH128
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-    extern void init_game_gmp(game *g, int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den);
-
-    extern int solve_2(game *g, int rows, int cols, mpq_t *row_payoff_data, mpq_t *col_payoff_data, mpz_t *row_data, mpz_t *col_data);
+    extern void init_game(game *g, int rows, int cols, int *row_num, int *row_den, int *col_num, int *col_den);
 
     extern void solve(game *g, lrs_mp_vector row_strategy, lrs_mp_vector col_strategy);
 
@@ -28,4 +26,4 @@ extern "C"
 }
 #endif
 
-#endif // LIBLRSNASH
+#endif // LIBLRSNASH128

@@ -1,4 +1,4 @@
-#include "src/lib-gmp.h"
+#include "include/lib-gmp.h"
 
 #include <iostream>
 
