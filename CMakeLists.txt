@@ -34,8 +34,8 @@ target_link_libraries(lrsnashlibgmp INTERFACE ${GMPXX_LIBRARY})
 
 # use the flag below to set data type for lrsnash.
 # top is 128 bit arithmetic, bottom is mpz_t from the gmp library
-target_compile_definitions(lrsnashliblong PUBLIC B128 LRSLONG SAFE)
-target_compile_definitions(lrsnashlibgmp PUBLIC GMP)
+target_compile_definitions(lrsnashliblong PUBLIC B128 LRSLONG SAFE LRS_QUIET)
+target_compile_definitions(lrsnashlibgmp PUBLIC GMP LRS_QUIET)
 
 # Executables
 
