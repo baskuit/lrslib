@@ -224,7 +224,7 @@ int lrs_solve_nash_long(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                     {
                         *(row_data[i1]) = *output1[i1];
                     }
-                    goto done;
+                    // goto done;
                 }
             }
         }

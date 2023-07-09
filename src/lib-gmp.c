@@ -220,7 +220,7 @@ int lrs_solve_nash_gmp(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
                     {
                         __copy(row_data[i1], output1[i1]);
                     }
-                    goto done;
+                    // goto done;
                 }
             }
         }
@@ -564,7 +564,7 @@ int solve_gmp_2(game *g, int rows, int cols, mpq_t *row_payoff_data, mpq_t *col_
                     {
                         __copy(row_data[i1], output1[i1]);
                     }
-                    goto done;
+                    // goto done;
                 }
             }
         }
