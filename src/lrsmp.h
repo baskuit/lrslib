@@ -33,6 +33,12 @@
 #define static static
 #endif
 
+#ifdef MUTE
+#define fprintf(...)
+#define printf(...)
+#define mpoutstr(...)
+#endif
+
 /***********/
 /* defines */
 /***********/

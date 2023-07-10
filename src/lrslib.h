@@ -31,6 +31,12 @@
 #define static static
 #endif
 
+#ifdef MUTE
+#define fprintf(...)
+#define printf(...)
+#define mpoutstr(...)
+#endif
+
 #define lrs_main suf(lrs_main)
 #define lrsv2_main suf(lrsv2_main)
 #define lrs_run suf(lrs_run)

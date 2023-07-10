@@ -34,6 +34,12 @@
 #include "flint.h"
 #endif
 
+#ifdef MUTE
+#define fprintf(...)
+#define printf(...)
+#define mpoutstr(...)
+#endif
+
 /***********/
 /* defines */
 /***********/
@@ -132,6 +138,8 @@
 #define mptodouble(a) mpz_get_d((a))
 #define mpgetstr10(a, c) mpgetstr(a, 10, c)
 #define mpgetstr(a, b, c) mpz_get_str((a), (b), (c))
+
+#ifndef MUTE
 #ifndef PLRS
 #define mpoutstr(a, b, c) mpz_out_str((a), (b), (c))
 #else
@@ -142,6 +150,8 @@
 		free(tmp);                            \
 	}
 #endif
+#endif
+
 #define mulint(a, b, c) mpz_mul((c), (a), (b))
 #define mului(a, b, c) mpz_mul_ui((a), (b), (c))
 #define one(a) (mpz_cmp_si((a), ONE) == 0 ? ONE : ZERO)
@@ -167,7 +177,11 @@
 #define mptodouble(a) fmpz_get_d((a))
 #define mpgetstr10(a, c) mpgetstr(a, 10, c)
 #define mpgetstr(a, b, c) fmpz_get_str((a), (b), (c))
+
+#ifndef MUTE
 #define mpoutstr(a, b, c) fmpz_fprint((a), (c)) /* had a (b) */
+#endif
+
 #define mulint(a, b, c) fmpz_mul((c), (a), (b))
 #define mului(a, b, c) fmpz_mul_ui((a), (b), (c))
 #define one(a) (fmpz_cmp_si((a), ONE) == 0 ? ONE : ZERO)
