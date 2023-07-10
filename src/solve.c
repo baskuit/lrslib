@@ -18,7 +18,7 @@
 #include <string.h>
 #include "lrsdriver.h"
 #include "lrslib.h"
-#include "lrsnashlib.h"
+#include "solve.h"
 
 static long FirstTime; /* set this to true for every new game to be solved */
 long Debug_flag;
@@ -29,6 +29,7 @@ long Verbose_flag;
 //========================================================================
 int lrs_solve_nash(game *g)
 {
+	return TRUE;
 	lrs_dic *P1;	  /* structure for holding current dictionary and indices */
 	lrs_dat *Q1, *Q2; /* structure for holding static problem data            */
 

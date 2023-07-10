@@ -12,7 +12,7 @@ src/lrsdriver.c
 )
 
 set (lrsnashlibgmp_sources
-src/lrsnashlib.c
+src/solve.c
 src/lrslib.c
 src/lrsgmp.c
 src/lrsdriver.c
@@ -26,9 +26,6 @@ add_library(lrsnashlibgmp ${lrsnashlibgmp_sources})
 find_library(GMP_LIBRARY gmp)
 target_link_libraries(lrsnashlib INTERFACE ${GMP_LIBRARY})
 target_link_libraries(lrsnashlibgmp INTERFACE ${GMP_LIBRARY})
-
-# find_library(GMPXX_LIBRARY gmpxx)
-# target_link_libraries(lrsnashlibgmp INTERFACE ${GMPXX_LIBRARY})
 
 target_compile_definitions(lrsnashlib    PUBLIC GMP LRS_QUIET)
 target_compile_definitions(lrsnashlibgmp PUBLIC GMP LRS_QUIET SURSKIT)

@@ -31,9 +31,13 @@ typedef struct
 typedef struct
 {
 	long nstrats[2];
+#ifdef SURSKIT
+	lrs_mp_matrix payoff;
+#else
 	ratnum payoff[MAXSTRAT][MAXSTRAT][2];
 	// For auxiliary information
 	void *aux;
+#endif
 } game;
 
 typedef struct

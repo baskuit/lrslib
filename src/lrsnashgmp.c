@@ -50,7 +50,7 @@ char LegacyMsg[] =
 #include <getopt.h>
 #include "lrsdriver.h"
 #include "lrslib.h"
-#include "lrsnashlib.h"
+#include "solve.h"
 
 //========================================================================
 // Games
