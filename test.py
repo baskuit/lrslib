@@ -15,7 +15,10 @@ def compare_scripts(script1_path, script2_path, input_dir):
         input_file = os.path.join(input_dir, filename)
         output1 = run_script(script1_path, input_file)
         output2 = run_script(script2_path, input_file)
-        print(f"Comparison for {filename}: {output1 == output2}")
+        equal = (output1 == output2)
+        if not equal:
+            exit(1)
+        print(f"Comparison for {filename}: {equal}")
         print(output1)
 
 script1_path = os.path.join(os.getcwd(), "build", "lrsnash")

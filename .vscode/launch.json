@@ -1,0 +1,47 @@
+{
+    "version": "0.2.0",
+    "tasks": [
+      {
+        "label": "CMake: build",
+        "type": "shell",
+        "command": "cmake",
+        "args": [
+          "--build",
+          "${workspaceFolder}/build",
+          "--target",
+          "your-target-name",
+          "--config",
+          "Debug"
+        ],
+        "problemMatcher": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      }
+    ],
+    "configurations": [
+      {
+        "name": "CMake Debug",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/build/lrsnash",
+        "args": ["${input:filename}"],
+        "stopAtEntry": false,
+        "cwd": "${workspaceFolder}/build",
+        "environment": [],
+        "externalConsole": true,
+        "MIMode": "gdb",
+        "preLaunchTask": "CMake: build"
+      }
+    ],
+    "inputs": [
+      {
+        "id": "filename",
+        "type": "promptString",
+        "description": "Enter the filename:",
+        "default": "/home/user/Desktop/lrslib/games/game"
+      }
+    ]
+  }
+  

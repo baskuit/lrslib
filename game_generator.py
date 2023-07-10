@@ -19,6 +19,13 @@ def matrix_string (rows = 2, cols = 2, max=2):
         ]
         for row in range(rows)
     ]
+    row_array = [
+        [
+            (entry[0], entry[1] + (entry[1] == 0))
+            for entry in row
+        ]
+        for row in row_array
+    ]
     row_string = "\n".join([" ".join([f"{entry[0]}/{entry[1]}"  for entry in row]) for row in row_array])
     col_string = "\n".join([" ".join([f"{entry[1] - entry[0]}/{entry[1]}"  for entry in row]) for row in row_array])
 
