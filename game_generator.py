@@ -10,11 +10,6 @@ Generates games in "lrslib/games" (if python is called from lrslib)
 
 """
 
-n_files = 5
-rows = 2
-cols = 2
-max = 2
-
 def matrix_string (rows = 2, cols = 2, max=2):
 
     row_array = [
@@ -31,14 +26,27 @@ def matrix_string (rows = 2, cols = 2, max=2):
     return string
 
 
-for i in range(n_files):
-    current_time = time.strftime(
-        "%Y%m%d%H%M%S", time.gmtime()
-    )  # Get the current UTC time
-    filename = (
-        f"{current_time}_{i}"  # Add an increment discriminator to the filename
-    )
-    filepath = os.path.join(os.getcwd(), "games", filename)  # Create the full path to the file
+def make_batch (rows, cols, n_files, max=2, dir="new_games"):
 
-    with open(filepath, "w") as file:
-        file.write(matrix_string(rows, cols, max))  # Write the current UTC time to the file
+    for i in range(n_files):
+        current_time = time.strftime(
+            "%Y%m%d%H%M%S", time.gmtime()
+        )  # Get the current UTC time
+        filename = (
+            f"{current_time}_{i}_{random.randint(0, 2**10)}"  # Add an increment discriminator to the filename
+        )
+        filepath = os.path.join(os.getcwd(), dir, filename)  # Create the full path to the file
+
+        with open(filepath, "w") as file:
+            file.write(matrix_string(rows, cols, max))  # Write the current UTC time to the file
+
+if __name__ == "__main__":
+
+    row_sched = [2, 3, 4, 5, 6, 7, 8, 9]
+    col_sched = row_sched
+
+    n_files = 5
+    max = 2
+
+    for rows, cols in zip(row_sched, col_sched):
+        make_batch(rows, cols, n_files, max)
