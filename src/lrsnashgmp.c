@@ -152,10 +152,14 @@ int readGame(game *g, const char *filename)
 		SIZEERROR(filename);
 	g->nstrats[ROW] = nr;
 	g->nstrats[COL] = nc;
+	g->row_payoff = (mpq_t *)malloc(nr * nc * sizeof(mpq_t));
+	g->col_payoff = (mpq_t *)malloc(nr * nc * sizeof(mpq_t));
+	long num_temp, den_temp;
 	initFwidth(g);
 	// Read payoffs
 	for (pos = 0; pos < 2; pos++)
 	{
+		long index = 0;
 		for (s = 0; s < nr; s++)
 		{
 			for (t = 0; t < nc; t++)
@@ -163,8 +167,14 @@ int readGame(game *g, const char *filename)
 				if (fscanf(IN, "%s", in) < 1)
 					READERROR(filename);
 				updateFwidth(g, t, pos, in);
-				if (!tl_readrat(&g->payoff[s][t][pos].num, &g->payoff[s][t][pos].den, in))
+				if (!tl_readrat(&num_temp, &den_temp, in))
 					RATWARN(in, filename);
+				if (pos == 0) {
+					mpq_set_si(g->row_payoff[index], num_temp, den_temp);
+				} else {
+					mpq_set_si(g->col_payoff[index], num_temp, den_temp);
+				}
+				index += 1;
 			}
 		}
 	}
@@ -333,5 +343,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "%s", LegacyMsg); // Print a message to user
 		lrs_solve_nash_legacy(argc, argv);
 	}
+	free(Game.row_payoff);
+	free(Game.col_payoff);
 	return 0;
 }

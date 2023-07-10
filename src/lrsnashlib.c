@@ -168,8 +168,8 @@ int lrs_solve_nash(game *g)
 	} while (lrs_getnextbasis(&P1, Q1, prune));
 
 	fprintf(lrs_ofp, "*Number of equilibria found: %ld", numequilib);
-	fprintf(lrs_ofp, "\n*Player 1: vertices=%ld bases=%ld pivots=%ld", Q1->count[1], Q1->count[2], Q1->count[3]);
-	fprintf(lrs_ofp, "\n*Player 2: vertices=%ld bases=%ld pivots=%ld", Q2->count[1], Q2->count[2], Q2->count[3]);
+	// fprintf(lrs_ofp, "\n*Player 1: vertices=%ld bases=%ld pivots=%ld", Q1->count[1], Q1->count[2], Q1->count[3]);
+	// fprintf(lrs_ofp, "\n*Player 2: vertices=%ld bases=%ld pivots=%ld", Q2->count[1], Q2->count[2], Q2->count[3]);
 
 	lrs_clear_mp_vector(output1, Q1->m + Q1->n);
 	lrs_clear_mp_vector(output2, Q1->m + Q1->n);

@@ -32,12 +32,17 @@ typedef struct
 {
 	long nstrats[2];
 #ifdef SURSKIT
-	lrs_mp_matrix payoff;
+#ifdef GMP
+	mpq_t *row_payoff; // must be dynamically allocated
+	mpq_t *col_payoff;
 #else
+	ratnum *row_payoff;
+	ratnum *col_payoff
+#endif
 	ratnum payoff[MAXSTRAT][MAXSTRAT][2];
+#endif
 	// For auxiliary information
 	void *aux;
-#endif
 } game;
 
 typedef struct

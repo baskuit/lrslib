@@ -13,7 +13,7 @@ def run_script(script_path, input_file):
 
 def compare_scripts(script1_path, script2_path, input_dir):
     list_dir = os.listdir(input_dir)
-    random.shuffle(list_dir)
+    # random.shuffle(list_dir)
     for filename in list_dir:
         input_file = os.path.join(input_dir, filename)
         output1 = run_script(script1_path, input_file)
@@ -25,8 +25,6 @@ def compare_scripts(script1_path, script2_path, input_dir):
             print("COMPARED TO")
             print(output2)
             exit(1)
-        print(f"Comparison for {filename}: {equal}")
-        print(output1)
 
 script1_path = os.path.join(os.getcwd(), "build", "lrsnash")
 script2_path = os.path.join(os.getcwd(), "build", "lrsnashgmp")

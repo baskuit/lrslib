@@ -168,8 +168,8 @@ int lrs_solve_nash(game *g)
 	} while (lrs_getnextbasis(&P1, Q1, prune));
 
 	fprintf(lrs_ofp, "*Number of equilibria found: %ld", numequilib);
-	fprintf(lrs_ofp, "\n*Player 1: vertices=%ld bases=%ld pivots=%ld", Q1->count[1], Q1->count[2], Q1->count[3]);
-	fprintf(lrs_ofp, "\n*Player 2: vertices=%ld bases=%ld pivots=%ld", Q2->count[1], Q2->count[2], Q2->count[3]);
+	// fprintf(lrs_ofp, "\n*Player 1: vertices=%ld bases=%ld pivots=%ld", Q1->count[1], Q1->count[2], Q1->count[3]);
+	// fprintf(lrs_ofp, "\n*Player 2: vertices=%ld bases=%ld pivots=%ld", Q2->count[1], Q2->count[2], Q2->count[3]);
 
 	lrs_clear_mp_vector(output1, Q1->m + Q1->n);
 	lrs_clear_mp_vector(output2, Q1->m + Q1->n);
@@ -1043,26 +1043,42 @@ void FillNonnegativityRows(lrs_dic *P, lrs_dat *Q, int firstRow, int lastRow, in
 //----------------------------------------------------------------------------------------//
 void FillConstraintRows(lrs_dic *P, lrs_dat *Q, const game *g, int p1, int p2, int firstRow)
 {
-	const int MAXCOL = 1000; /* maximum number of columns */
-	long num[MAXCOL], den[MAXCOL];
-	ratnum x;
+#ifdef SURKSIT
+#ifdef GMP
+#else
+#endif
+#else
+#endif
+
+	long d;
+	d = P->d;
+	lrs_mp_vector Num, Den;
+	Num = lrs_alloc_mp_vector(d + 1);
+	Den = lrs_alloc_mp_vector(d + 1);
+
+	mpq_t payoff_rational;
+	mpq_init(payoff_rational);
 	int row, s, t;
 
 	for (row = firstRow; row < firstRow + g->nstrats[p1]; row++)
 	{
-		num[0] = 0;
-		den[0] = 1;
+		mpz_set_ui(Num[0], 0);
+		mpz_set_ui(Den[0], 1);
 		s = row - firstRow;
 		for (t = 0; t < g->nstrats[p2]; t++)
 		{
-			x = p1 == ROW ? g->payoff[s][t][p1] : g->payoff[t][s][p1];
-			num[t + 1] = -x.num;
-			den[t + 1] = x.den;
+			mpq_set(payoff_rational, p1 == ROW ? (g->row_payoff[s * g->nstrats[p1] + t]) : g->col_payoff[t * g->nstrats[p1] + s]);
+			mpq_get_num(Num[t + 1], payoff_rational);
+			mpz_neg(Num[t + 1], Num[t + 1]);
+			mpq_get_den(Den[t + 1], payoff_rational);
 		}
-		num[g->nstrats[p2] + 1] = 1;
-		den[g->nstrats[p2] + 1] = 1;
-		lrs_set_row(P, Q, row, num, den, GE);
+		mpz_set_ui(Num[g->nstrats[p2] + 1], 1);
+		mpz_set_ui(Den[g->nstrats[p2] + 1], 1);
+
+		lrs_set_row_mp(P, Q, row, Num, Den, GE);
 	}
+	lrs_clear_mp_vector(Num, d + 1);
+	lrs_clear_mp_vector(Den, d + 1);
 }
 
 //----------------------------------------------------------------------------------------//

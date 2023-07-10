@@ -28,7 +28,7 @@ target_link_libraries(lrsnashlib INTERFACE ${GMP_LIBRARY})
 target_link_libraries(lrsnashlibgmp INTERFACE ${GMP_LIBRARY})
 
 target_compile_definitions(lrsnashlib    PUBLIC GMP LRS_QUIET)
-target_compile_definitions(lrsnashlibgmp PUBLIC GMP LRS_QUIET)
+target_compile_definitions(lrsnashlibgmp PUBLIC GMP LRS_QUIET SURSKIT)
 
 # Executables
 
