@@ -52,10 +52,13 @@ typedef struct
 	int fwidth[MAXSTRAT][2]; // Column field widths (for output)
 } gInfo;
 
-int lrs_solve_nash(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data);
+int lrs_solve_nash(game *g);
+int solve(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data);
 
 long nash2_main(lrs_dic *P1, lrs_dat *Q1, lrs_dic *P2orig,
 				lrs_dat *Q2, long *numequilib, lrs_mp_vector output, long linindex[]);
+long nash2_main_(lrs_dic *P1, lrs_dat *Q1, lrs_dic *P2orig,
+				lrs_dat *Q2, long *numequilib, lrs_mp_vector output, long linindex[], lrs_mp_vector data);
 /* lrs driver, argv[2]= 2nd input file for nash equilibria */
 
 long lrs_getfirstbasis2(lrs_dic **D_p, lrs_dat *Q, lrs_dic *P2orig, lrs_mp_matrix *Lin, long no_output,
@@ -64,6 +67,7 @@ long lrs_getfirstbasis2(lrs_dic **D_p, lrs_dat *Q, lrs_dic *P2orig, lrs_mp_matri
 long getabasis2(lrs_dic *P, lrs_dat *Q, lrs_dic *P2orig, long order[], long linindex[]);
 
 long lrs_nashoutput(lrs_dat *Q, lrs_mp_vector output, long player);
+long lrs_nashoutput_(lrs_dat *Q, lrs_mp_vector output, long player, lrs_mp_vector data);
 /* returns TRUE and prints output if not the origin */
 
 int lrs_solve_nash_legacy(int argc, char *argv[]);

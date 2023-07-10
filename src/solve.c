@@ -27,7 +27,7 @@ long Verbose_flag;
 //========================================================================
 // Standard solver. Modified version of main() from lrsNash
 //========================================================================
-int lrs_solve_nash(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
+int lrs_solve_nash(game *g)
 {
 	lrs_dic *P1;	  /* structure for holding current dictionary and indices */
 	lrs_dat *Q1, *Q2; /* structure for holding static problem data            */
