@@ -360,7 +360,17 @@ int main(int argc, char **argv)
 					printGame(g);
 				row_data = lrs_alloc_mp_vector(g->nstrats[0] + 2);
 				col_data = lrs_alloc_mp_vector(g->nstrats[1] + 2);
-				lrs_solve_nash(g);
+				solve(g, row_data, col_data);
+				// for (int i = 0; i < g->nstrats[0] + 2; i++) {
+				// 	mpoutstr(lrs_ofp, 10, row_data[i]);
+				// 	fprintf(lrs_ofp, " ");
+				// }
+				// fprintf(lrs_ofp, "\n");
+				// for (int i = 0; i < g->nstrats[1] + 2; i++) {
+				// 	mpoutstr(lrs_ofp, 10, col_data[i]);
+				// 	fprintf(lrs_ofp, " ");
+				// }
+				// fprintf(lrs_ofp, "\n");
 			}
 		}
 		closeIO();
