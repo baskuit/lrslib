@@ -1,5 +1,6 @@
 import os
 import subprocess
+import random
 
 def run_script(script_path, input_file):
     try:
@@ -11,12 +12,18 @@ def run_script(script_path, input_file):
         return f"Error: {e.returncode}"
 
 def compare_scripts(script1_path, script2_path, input_dir):
-    for filename in os.listdir(input_dir):
+    list_dir = os.listdir(input_dir)
+    random.shuffle(list_dir)
+    for filename in list_dir:
         input_file = os.path.join(input_dir, filename)
         output1 = run_script(script1_path, input_file)
         output2 = run_script(script2_path, input_file)
         equal = (output1 == output2)
         if not equal:
+            print(filename)
+            print(output1)
+            print("COMPARED TO")
+            print(output2)
             exit(1)
         print(f"Comparison for {filename}: {equal}")
         print(output1)
