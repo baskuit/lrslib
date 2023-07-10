@@ -152,9 +152,16 @@ int readGame(game *g, const char *filename)
 		SIZEERROR(filename);
 	g->nstrats[ROW] = nr;
 	g->nstrats[COL] = nc;
+#ifdef GMP
 	g->row_payoff = (mpq_t *)malloc(nr * nc * sizeof(mpq_t));
 	g->col_payoff = (mpq_t *)malloc(nr * nc * sizeof(mpq_t));
 	long num_temp, den_temp;
+#else
+	g->row_payoff = (ratnum *)malloc(nr * nc * sizeof(ratnum));
+	g->col_payoff = (ratnum *)malloc(nr * nc * sizeof(ratnum));
+	ratnum *payoff;
+
+#endif
 	initFwidth(g);
 	// Read payoffs
 	for (pos = 0; pos < 2; pos++)
@@ -167,13 +174,30 @@ int readGame(game *g, const char *filename)
 				if (fscanf(IN, "%s", in) < 1)
 					READERROR(filename);
 				updateFwidth(g, t, pos, in);
+#ifdef GMP
 				if (!tl_readrat(&num_temp, &den_temp, in))
 					RATWARN(in, filename);
-				if (pos == 0) {
+				if (pos == 0)
+				{
 					mpq_set_si(g->row_payoff[index], num_temp, den_temp);
-				} else {
+				}
+				else
+				{
 					mpq_set_si(g->col_payoff[index], num_temp, den_temp);
 				}
+#else
+				if (pos == 0)
+				{
+					payoff = g->row_payoff;
+				}
+				else
+				{
+					payoff = g->col_payoff;
+				}
+				if (!tl_readrat(&payoff[index].num, &payoff[index].num, in))
+					RATWARN(in, filename);
+#endif
+
 				index += 1;
 			}
 		}
@@ -317,6 +341,7 @@ int main(int argc, char **argv)
 	game *g = &Game;
 	gInfo GI; // Storage for auxiliary information about the game
 	g->aux = &GI;
+	lrs_mp_vector row_data, col_data;
 
 	if (!getArgs(argc, argv))		// Read options and input file names. When we get here:
 		return 1;					// optind is a global integer supplied by getopt, and
@@ -333,7 +358,9 @@ int main(int argc, char **argv)
 			{
 				if (Print_game_flag)
 					printGame(g);
-				lrs_solve_nash(g);
+				row_data = lrs_alloc_mp_vector(g->nstrats[0] + 2);
+				col_data = lrs_alloc_mp_vector(g->nstrats[1] + 2);
+				lrs_solve_nash(g, row_data, col_data);
 			}
 		}
 		closeIO();
@@ -345,5 +372,7 @@ int main(int argc, char **argv)
 	}
 	free(Game.row_payoff);
 	free(Game.col_payoff);
+	lrs_clear_mp_vector(row_data, g->nstrats[0] + 2);
+	lrs_clear_mp_vector(col_data, g->nstrats[1] + 2);
 	return 0;
 }
