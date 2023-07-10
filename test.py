@@ -25,9 +25,10 @@ def compare_scripts(script1_path, script2_path, input_dir):
             print("COMPARED TO")
             print(output2)
             exit(1)
-
 script1_path = os.path.join(os.getcwd(), "build", "lrsnash")
-script2_path = os.path.join(os.getcwd(), "build", "lrsnashgmp")
+script2_path = os.path.join(os.getcwd(), "build", "lrsnashsurskit")
+script3_path = os.path.join(os.getcwd(), "build", "lrsnashsurskitlong")
 input_dir = os.path.join(os.getcwd(), "new_games")
 
 compare_scripts(script1_path, script2_path, input_dir)
+compare_scripts(script1_path, script3_path, input_dir)
