@@ -37,8 +37,9 @@ typedef struct
 	mpq_t *col_payoff;
 #else
 	ratnum *row_payoff;
-	ratnum *col_payoff
+	ratnum *col_payoff;
 #endif
+#else
 	ratnum payoff[MAXSTRAT][MAXSTRAT][2];
 #endif
 	// For auxiliary information
@@ -51,7 +52,7 @@ typedef struct
 	int fwidth[MAXSTRAT][2]; // Column field widths (for output)
 } gInfo;
 
-int lrs_solve_nash(game *g);
+int lrs_solve_nash(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data);
 
 long nash2_main(lrs_dic *P1, lrs_dat *Q1, lrs_dic *P2orig,
 				lrs_dat *Q2, long *numequilib, lrs_mp_vector output, long linindex[]);

@@ -49,6 +49,10 @@ def make_batch (rows, cols, n_files, max=2, dir="new_games"):
 
 if __name__ == "__main__":
 
+    game_dir = os.path.join(os.getcwd(), 'new_games')
+    if not os.path.exists(game_dir):
+        os.mkdir(game_dir)
+
     row_sched = [2, 3, 4, 5, 6, 7, 8, 9]
     col_sched = row_sched
 
@@ -57,3 +61,6 @@ if __name__ == "__main__":
 
     for rows, cols in zip(row_sched, col_sched):
         make_batch(rows, cols, n_files, max)
+
+    # for rows, cols in zip(row_sched, col_sched):
+    #     make_batch(rows, cols, n_files, 20)

@@ -27,7 +27,7 @@ long Verbose_flag;
 //========================================================================
 // Standard solver. Modified version of main() from lrsNash
 //========================================================================
-int lrs_solve_nash(game *g)
+int lrs_solve_nash(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data)
 {
 	lrs_dic *P1;	  /* structure for holding current dictionary and indices */
 	lrs_dat *Q1, *Q2; /* structure for holding static problem data            */
@@ -1043,12 +1043,9 @@ void FillNonnegativityRows(lrs_dic *P, lrs_dat *Q, int firstRow, int lastRow, in
 //----------------------------------------------------------------------------------------//
 void FillConstraintRows(lrs_dic *P, lrs_dat *Q, const game *g, int p1, int p2, int firstRow)
 {
-#ifdef SURKSIT
+#ifdef SURSKIT
+
 #ifdef GMP
-#else
-#endif
-#else
-#endif
 
 	long d;
 	d = P->d;
@@ -1079,6 +1076,56 @@ void FillConstraintRows(lrs_dic *P, lrs_dat *Q, const game *g, int p1, int p2, i
 	}
 	lrs_clear_mp_vector(Num, d + 1);
 	lrs_clear_mp_vector(Den, d + 1);
+
+#else
+
+	const int MAXCOL = 1000; /* maximum number of columns */
+	long num[MAXCOL], den[MAXCOL];
+	ratnum x;
+	int row, s, t;
+
+	for (row = firstRow; row < firstRow + g->nstrats[p1]; row++)
+	{
+		num[0] = 0;
+		den[0] = 1;
+		s = row - firstRow;
+		for (t = 0; t < g->nstrats[p2]; t++)
+		{
+			x = p1 == ROW ? (g->row_payoff[s * g->nstrats[p1] + t]) : g->col_payoff[t * g->nstrats[p1] + s];
+			num[t + 1] = -x.num;
+			den[t + 1] = x.den;
+		}
+		num[g->nstrats[p2] + 1] = 1;
+		den[g->nstrats[p2] + 1] = 1;
+		lrs_set_row(P, Q, row, num, den, GE);
+	}
+
+#endif
+#else
+
+	const int MAXCOL = 1000; /* maximum number of columns */
+	long num[MAXCOL], den[MAXCOL];
+	ratnum x;
+	int row, s, t;
+
+	for (row = firstRow; row < firstRow + g->nstrats[p1]; row++)
+	{
+		num[0] = 0;
+		den[0] = 1;
+		s = row - firstRow;
+		for (t = 0; t < g->nstrats[p2]; t++)
+		{
+			x = p1 == ROW ? g->payoff[s][t][p1] : g->payoff[t][s][p1];
+			num[t + 1] = -x.num;
+			den[t + 1] = x.den;
+		}
+		num[g->nstrats[p2] + 1] = 1;
+		den[g->nstrats[p2] + 1] = 1;
+		lrs_set_row(P, Q, row, num, den, GE);
+	}
+
+#endif
+
 }
 
 //----------------------------------------------------------------------------------------//
@@ -1147,6 +1194,9 @@ void BuildRep(lrs_dic *P, lrs_dat *Q, const game *g, int p1, int p2)
 //----------------------------------------------------------------------------------------//
 void printGame(game *g)
 {
+#ifdef SURSKIT
+	// TODO or not. Don't actually need this function
+#else
 	int s, t;
 	char out[2][MAXINPUT];
 	fprintf(lrs_ofp, "\n--------------------------------------------------------------------------------\n");
@@ -1169,6 +1219,7 @@ void printGame(game *g)
 	}
 	fprintf(lrs_ofp, "\nNash equilibria:\n");
 	fflush(lrs_ofp);
+#endif
 }
 
 // Functions to set field widths for pretty printing of payoff matrices
