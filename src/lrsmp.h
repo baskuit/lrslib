@@ -27,6 +27,12 @@
    is useful if arrays or matrices will be used.
  */
 
+#ifdef SURSKIT
+#define static
+#else
+#define static static
+#endif
+
 /***********/
 /* defines */
 /***********/

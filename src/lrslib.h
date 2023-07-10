@@ -25,6 +25,12 @@
 /*  See http://cgm.cs.mcgill.ca/~avis/C/lrs.html for usage instructions         */
 /******************************************************************************/
 
+#ifdef SURSKIT
+#define static
+#else
+#define static static
+#endif
+
 #define lrs_main suf(lrs_main)
 #define lrsv2_main suf(lrsv2_main)
 #define lrs_run suf(lrs_run)
