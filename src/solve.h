@@ -54,6 +54,7 @@ typedef struct
 
 int lrs_solve_nash(game *g);
 int solve(game *g, lrs_mp_vector row_data, lrs_mp_vector col_data);
+int solve_pointer(game *g, mpq_t** row_payoff_data, mpq_t** col_payoff_data, lrs_mp_vector row_data, lrs_mp_vector col_data);
 
 long nash2_main(lrs_dic *P1, lrs_dat *Q1, lrs_dic *P2orig,
 				lrs_dat *Q2, long *numequilib, lrs_mp_vector output, long linindex[]);

@@ -19,3 +19,16 @@ void solve_gmp(
 
     solve(&Game, row_solution_data, col_solution_data);
 }
+
+void solve_gmp_pointer(
+    int rows, int cols,
+    mpq_t **row_payoff_data, mpq_t **col_payoff_data,
+    mpz_t *row_solution_data, mpz_t *col_solution_data)
+{
+    lrs_init("");
+    game Game;
+    Game.nstrats[ROW] = rows;
+    Game.nstrats[COL] = cols;
+
+    solve_pointer(&Game, row_payoff_data, col_payoff_data, row_solution_data, col_solution_data);
+}
