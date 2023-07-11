@@ -1375,7 +1375,7 @@ void FillConstraintRows(lrs_dic *P, lrs_dat *Q, const game *g, int p1, int p2, i
 		s = row - firstRow;
 		for (t = 0; t < g->nstrats[p2]; t++)
 		{
-			mpq_set(payoff_rational, p1 == ROW ? (g->row_payoff[s * g->nstrats[p1] + t]) : g->col_payoff[t * g->nstrats[p1] + s]);
+			mpq_set(payoff_rational, p1 == ROW ? (g->row_payoff[s * g->nstrats[p2] + t]) : g->col_payoff[t * g->nstrats[p1] + s]);
 			mpq_get_num(Num[t + 1], payoff_rational);
 			mpz_neg(Num[t + 1], Num[t + 1]);
 			mpq_get_den(Den[t + 1], payoff_rational);
