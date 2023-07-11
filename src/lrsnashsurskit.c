@@ -155,6 +155,10 @@ int readGame(game *g, const char *filename)
 #ifdef GMP
 	g->row_payoff = (mpq_t *)malloc(nr * nc * sizeof(mpq_t));
 	g->col_payoff = (mpq_t *)malloc(nr * nc * sizeof(mpq_t));
+	// for (int i = 0; i < nr * nc; i++) {
+	// 	mpq_init(g->row_payoff[i]);
+	// 	mpq_init(g->col_payoff[i]);
+	// }
 	long num_temp, den_temp;
 #else
 	g->row_payoff = (ratnum *)malloc(nr * nc * sizeof(ratnum));
