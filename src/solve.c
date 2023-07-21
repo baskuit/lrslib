@@ -24,7 +24,172 @@ static long FirstTime; /* set this to true for every new game to be solved */
 long Debug_flag;
 long Verbose_flag;
 
-int solve_pointer_constant_sum(game *g, mpq_t** row_payoff_data, lrs_mp_vector row_data, lrs_mp_vector col_data, int payoff_sum_num, int payoff_sum_den) {
+int solve_float(game *g, long *payoff_data, long den, lrs_mp_vector row_data, lrs_mp_vector col_data)
+{
+	lrs_dic *P1;	  /* structure for holding current dictionary and indices */
+	lrs_dat *Q1, *Q2; /* structure for holding static problem data            */
+
+	lrs_mp_vector output1; /* holds one line of output; ray,vertex,facet,linearity */
+	lrs_mp_vector output2; /* holds one line of output; ray,vertex,facet,linearity */
+	lrs_mp_matrix Lin;	   /* holds input linearities if any are found             */
+	lrs_mp_matrix A2orig;
+	lrs_dic *P2orig; /* we will save player 2's dictionary in getabasis      */
+
+	long *linindex; /* for faster restart of player 2                       */
+
+	long col; /* output column index for dictionary                   */
+	long startcol = 0;
+	long prune = FALSE;	 /* if TRUE, getnextbasis will prune tree and backtrack  */
+	long numequilib = 0; /* number of nash equilibria found                      */
+	long oldnum = 0;
+
+	/* global variables lrs_ifp and lrs_ofp are file pointers for input and output   */
+	/* they default to stdin and stdout, but may be overidden by command line parms. */
+
+	/*********************************************************************************/
+	/* Step 1: Allocate lrs_dat, lrs_dic and set up the problem                      */
+	/*********************************************************************************/
+	FirstTime = TRUE; /* This is done for each new game */
+
+	Q1 = lrs_alloc_dat("LRS globals"); /* allocate and init structure for static problem data */
+	if (Q1 == NULL)
+	{
+		return 0;
+	}
+
+	Q1->nash = TRUE;
+	Q1->n = g->nstrats[ROW] + 2;
+	Q1->m = g->nstrats[ROW] + g->nstrats[COL] + 1;
+
+	Q1->debug = Debug_flag;
+	Q1->verbose = Verbose_flag;
+
+	P1 = lrs_alloc_dic(Q1); /* allocate and initialize lrs_dic */
+	if (P1 == NULL)
+	{
+		return 0;
+	}
+
+	BuildRepFloat(P1, Q1, g, payoff_data, den, 1, 0);
+
+	output1 = lrs_alloc_mp_vector(Q1->n + Q1->m); /* output holds one line of output from dictionary     */
+
+	/* allocate and init structure for player 2's problem data */
+	Q2 = lrs_alloc_dat("LRS globals");
+	if (Q2 == NULL)
+	{
+		return 0;
+	}
+
+	Q2->debug = Debug_flag;
+	Q2->verbose = Verbose_flag;
+
+	Q2->nash = TRUE;
+	Q2->n = g->nstrats[COL] + 2;
+	Q2->m = g->nstrats[ROW] + g->nstrats[COL] + 1;
+
+	P2orig = lrs_alloc_dic(Q2); /* allocate and initialize lrs_dic */
+	if (P2orig == NULL)
+	{
+		return 0;
+	}
+	BuildRepFloat(P2orig, Q2, g, payoff_data, den, 0, 1);
+	A2orig = P2orig->A;
+
+	output2 = lrs_alloc_mp_vector(Q1->n + Q1->m); /* output holds one line of output from dictionary     */
+
+	linindex = calloc((P2orig->m + P2orig->d + 2), sizeof(long)); /* for next time */
+
+	fprintf(lrs_ofp, "\n");
+	//  fprintf (lrs_ofp, "***** %ld %ld rational\n", Q1->n, Q2->n);
+
+	/*********************************************************************************/
+	/* Step 2: Find a starting cobasis from default of specified order               */
+	/*         P1 is created to hold  active dictionary data and may be cached       */
+	/*         Lin is created if necessary to hold linearity space                   */
+	/*         Print linearity space if any, and retrieve output from first dict.    */
+	/*********************************************************************************/
+
+	if (!lrs_getfirstbasis(&P1, Q1, &Lin, TRUE))
+		return 1;
+
+	if (Q1->dualdeg)
+	{
+		printf("\n*Warning! Dual degenerate, ouput may be incomplete");
+		printf("\n*Recommendation: Add dualperturb option before maximize in first input file\n");
+	}
+
+	if (Q1->unbounded)
+	{
+		printf("\n*Warning! Unbounded starting dictionary for p1, output may be incomplete");
+		printf("\n*Recommendation: Change/remove maximize option, or include bounds \n");
+	}
+
+	/* Pivot to a starting dictionary                      */
+	/* There may have been column redundancy               */
+	/* If so the linearity space is obtained and redundant */
+	/* columns are removed. User can access linearity space */
+	/* from lrs_mp_matrix Lin dimensions nredundcol x d+1  */
+
+	if (Q1->homogeneous && Q1->hull)
+		startcol++; /* col zero not treated as redundant   */
+
+	for (col = startcol; col < Q1->nredundcol; col++) /* print linearity space               */
+		lrs_printoutput(Q1, Lin[col]);				  /* Array Lin[][] holds the coeffs.     */
+
+	/*********************************************************************************/
+	/* Step 3: Terminate if lponly option set, otherwise initiate a reverse          */
+	/*         search from the starting dictionary. Get output for each new dict.    */
+	/*********************************************************************************/
+
+	/* We initiate reverse search from this dictionary       */
+	/* getting new dictionaries until the search is complete */
+	/* User can access each output line from output which is */
+	/* vertex/ray/facet from the lrs_mp_vector output         */
+	/* prune is TRUE if tree should be pruned at current node */
+	do
+	{
+		prune = lrs_checkbound(P1, Q1);
+		if (!prune && lrs_getsolution(P1, Q1, output1, col))
+		{
+			oldnum = numequilib;
+			nash2_main_(P1, Q1, P2orig, Q2, &numequilib, output2, linindex, col_data);
+			if (numequilib > oldnum || Q1->verbose)
+			{
+				if (Q1->verbose)
+					prat(" \np2's obj value: ", P1->objnum, P1->objden);
+				lrs_nashoutput_(Q1, output1, 1L, row_data);
+				fprintf(lrs_ofp, "\n");
+			}
+		}
+	} while (lrs_getnextbasis(&P1, Q1, prune));
+
+	fprintf(lrs_ofp, "*Number of equilibria found: %ld", numequilib);
+	// fprintf(lrs_ofp, "\n*Player 1: vertices=%ld bases=%ld pivots=%ld", Q1->count[1], Q1->count[2], Q1->count[3]);
+	// fprintf(lrs_ofp, "\n*Player 2: vertices=%ld bases=%ld pivots=%ld", Q2->count[1], Q2->count[2], Q2->count[3]);
+
+	lrs_clear_mp_vector(output1, Q1->m + Q1->n);
+	lrs_clear_mp_vector(output2, Q1->m + Q1->n);
+
+	lrs_free_dic(P1, Q1); /* deallocate lrs_dic */
+	lrs_free_dat(Q1);	  /* deallocate lrs_dat */
+
+	/* 2015.10.10  new code to clear P2orig */
+	Q2->Qhead = P2orig; /* reset this or you crash free_dic */
+	P2orig->A = A2orig; /* reset this or you crash free_dic */
+
+	lrs_free_dic(P2orig, Q2); /* deallocate lrs_dic */
+	lrs_free_dat(Q2);		  /* deallocate lrs_dat */
+
+	free(linindex);
+
+	//  lrs_close("nash:");
+	fprintf(lrs_ofp, "\n");
+	return 0;
+}
+
+int solve_pointer_constant_sum(game *g, mpq_t **row_payoff_data, lrs_mp_vector row_data, lrs_mp_vector col_data, int payoff_sum_num, int payoff_sum_den)
+{
 	lrs_dic *P1;	  /* structure for holding current dictionary and indices */
 	lrs_dat *Q1, *Q2; /* structure for holding static problem data            */
 
@@ -1881,8 +2046,9 @@ void FillConstraintRowsPointerConstantSum(lrs_dic *P, lrs_dat *Q, const game *g,
 		for (t = 0; t < g->nstrats[p2]; t++)
 		{
 			mpq_set(payoff_rational, p1 == ROW ? (*row_payoff_data[s * g->nstrats[p2] + t]) : (*row_payoff_data[t * g->nstrats[p1] + s]));
-			if (p1 == COL) {
-				mpq_sub(payoff_rational, payoff_sum, payoff_rational); 
+			if (p1 == COL)
+			{
+				mpq_sub(payoff_rational, payoff_sum, payoff_rational);
 			}
 			mpq_get_num(Num[t + 1], payoff_rational);
 			mpz_neg(Num[t + 1], Num[t + 1]);
@@ -1911,6 +2077,90 @@ void FillConstraintRowsPointerConstantSum(lrs_dic *P, lrs_dat *Q, const game *g,
 		for (t = 0; t < g->nstrats[p2]; t++)
 		{
 			x = p1 == ROW ? (*row_payoff_data[s * g->nstrats[p2] + t]) : *col_payoff_data[t * g->nstrats[p1] + s];
+			num[t + 1] = -x.num;
+			den[t + 1] = x.den;
+		}
+		num[g->nstrats[p2] + 1] = 1;
+		den[g->nstrats[p2] + 1] = 1;
+		lrs_set_row(P, Q, row, num, den, GE);
+	}
+
+#endif
+#else
+
+	const int MAXCOL = 1000; /* maximum number of columns */
+	long num[MAXCOL], den[MAXCOL];
+	ratnum x;
+	int row, s, t;
+
+	for (row = firstRow; row < firstRow + g->nstrats[p1]; row++)
+	{
+		num[0] = 0;
+		den[0] = 1;
+		s = row - firstRow;
+		for (t = 0; t < g->nstrats[p2]; t++)
+		{
+			x = p1 == ROW ? g->payoff[s][t][p1] : g->payoff[t][s][p1];
+			num[t + 1] = -x.num;
+			den[t + 1] = x.den;
+		}
+		num[g->nstrats[p2] + 1] = 1;
+		den[g->nstrats[p2] + 1] = 1;
+		lrs_set_row(P, Q, row, num, den, GE);
+	}
+
+#endif
+}
+
+//----------------------------------------------------------------------------------------//
+void FillConstraintRowsFloat(lrs_dic *P, lrs_dat *Q, const game *g, long *payoff_data, long den, int p1, int p2, int firstRow)
+{
+#ifdef SURSKIT
+
+#ifdef GMP
+
+	long d;
+	d = P->d;
+	lrs_mp_vector Num, Den;
+	Num = lrs_alloc_mp_vector(d + 1);
+	Den = lrs_alloc_mp_vector(d + 1);
+	int row, s, t;
+
+	for (row = firstRow; row < firstRow + g->nstrats[p1]; row++)
+	{
+		mpz_set_ui(Num[0], 0);
+		mpz_set_ui(Den[0], 1);
+		s = row - firstRow;
+		for (t = 0; t < g->nstrats[p2]; t++)
+		{
+			int idx = p1 == ROW ? s * g->nstrats[p2] + t : t * g->nstrats[p1] + s;
+			mpz_set_ui(Num[t + 1], payoff_data[2 * idx + p1]); // x[p1]; if use array instead
+			mpz_neg(Num[t + 1], Num[t + 1]);
+			mpz_set_ui(Den[t + 1], den);
+		}
+		mpz_set_ui(Num[g->nstrats[p2] + 1], 1);
+		mpz_set_ui(Den[g->nstrats[p2] + 1], 1);
+
+		lrs_set_row_mp(P, Q, row, Num, Den, GE);
+	}
+	lrs_clear_mp_vector(Num, d + 1);
+	lrs_clear_mp_vector(Den, d + 1);
+
+#else
+
+	const int MAXCOL = 1000; /* maximum number of columns */
+	long num[MAXCOL], den[MAXCOL];
+	ratnum x;
+	int row, s, t;
+
+	for (row = firstRow; row < firstRow + g->nstrats[p1]; row++)
+	{
+		num[0] = 0;
+		den[0] = 1;
+		s = row - firstRow;
+		for (t = 0; t < g->nstrats[p2]; t++)
+		{
+			x = p1 == ROW ? (g->row_payoff[s * g->nstrats[p2] + t]) : g->col_payoff[t * g->nstrats[p1] + s];
 			num[t + 1] = -x.num;
 			den[t + 1] = x.den;
 		}
@@ -2044,6 +2294,27 @@ void BuildRepPointerConstantSum(lrs_dic *P, lrs_dat *Q, const game *g, mpq_t **r
 	{
 		FillNonnegativityRows(P, Q, 1, g->nstrats[p2], n);
 		FillConstraintRowsPointerConstantSum(P, Q, g, row_payoff_data, p1, p2, g->nstrats[p2] + 1, payoff_sum_num, payoff_sum_den); // 1 here
+	}
+	FillLinearityRow(P, Q, m, n);
+
+	// TL added this to get first row of ones. (Is this necessary?)
+	FillFirstRow(P, Q, n);
+}
+
+void BuildRepFloat(lrs_dic *P, lrs_dat *Q, const game *g, long *payoff_data, long den, int p1, int p2)
+{
+	long m = Q->m; /* number of inequalities      */
+	long n = Q->n;
+
+	if (p1 == 0)
+	{
+		FillConstraintRowsFloat(P, Q, g, payoff_data, den, p1, p2, 1);
+		FillNonnegativityRows(P, Q, g->nstrats[p1] + 1, g->nstrats[ROW] + g->nstrats[COL], n);
+	}
+	else
+	{
+		FillNonnegativityRows(P, Q, 1, g->nstrats[p2], n);
+		FillConstraintRowsFloat(P, Q, g, payoff_data, den, p1, p2, g->nstrats[p2] + 1); // 1 here
 	}
 	FillLinearityRow(P, Q, m, n);
 

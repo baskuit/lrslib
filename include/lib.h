@@ -24,6 +24,11 @@ extern "C"
         mpz_t *row_solution_data, mpz_t *col_solution_data,
         int payoff_sum_num, int payoff_sum_den);
 
+    extern void solve_gmp_float(
+        int rows, int cols,
+        long *payoff_data, long den,
+        mpz_t *row_solution_data, mpz_t *col_solution_data);
+
 #ifdef __cplusplus
 }
 #endif
