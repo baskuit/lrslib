@@ -5,6 +5,14 @@
 #include "solve.h"
 #include "../include/lib.h"
 
+mpz_t *alloc (size_t n) {
+    return lrs_alloc_mp_vector(n);
+}
+
+void dealloc (mpz_t *x, size_t n) {
+    lrs_clear_mp_vector(x, n);
+}
+
 void solve_gmp_float(
     int rows, int cols,
     long *payoff_data, long den,

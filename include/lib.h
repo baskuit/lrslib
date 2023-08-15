@@ -29,6 +29,9 @@ extern "C"
         long *payoff_data, long den,
         mpz_t *row_solution_data, mpz_t *col_solution_data);
 
+    extern mpz_t *alloc(size_t n);
+    extern void dealloc(mpz_t *x, size_t n);
+
 #ifdef __cplusplus
 }
 #endif
