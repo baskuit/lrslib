@@ -235,12 +235,12 @@ typedef fmpz_t **lrs_mp_matrix;
 /*global variables   */
 /*********************/
 
-extern long lrs_digits;		   /* max permitted no. of digits   */
-extern long lrs_record_digits; /* this is the biggest acheived so far.     */
+extern __thread long lrs_digits;		   /* max permitted no. of digits   */
+extern __thread long lrs_record_digits; /* this is the biggest acheived so far.     */
 
 #include <stdio.h>
-extern FILE *lrs_ifp; /* input file pointer       */
-extern FILE *lrs_ofp; /* output file pointer      */
+extern __thread FILE *lrs_ifp; /* input file pointer       */
+extern __thread FILE *lrs_ofp; /* output file pointer      */
 
 /*********************************************************/
 /* Initialization and allocation procedures - must use!  */

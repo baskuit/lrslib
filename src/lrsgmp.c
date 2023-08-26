@@ -13,8 +13,8 @@
 #include <string.h>
 #include "lrsgmp.h"
 
-long lrs_digits;		/* max permitted no. of digits   */
-long lrs_record_digits; /* this is the biggest acheived so far.     */
+__thread long lrs_digits;		/* max permitted no. of digits   */
+__thread long lrs_record_digits; /* this is the biggest acheived so far.     */
 
 #define MAXINPUT 1000 /*max length of any input rational */
 

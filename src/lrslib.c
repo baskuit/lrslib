@@ -35,25 +35,25 @@
 #include "lrsrestart.h"
 #include "lrslib.h"
 
-static unsigned long dict_count, dict_limit, cache_tries, cache_misses;
+__thread static unsigned long dict_count, dict_limit, cache_tries, cache_misses;
 
 /* Variables and functions global to this file only */
 
-static long lrs_checkpoint_seconds = 0;
+__thread static long lrs_checkpoint_seconds = 0;
 
-static long lrs_global_count = 0; /* Track how many lrs_dat records are
+__thread static long lrs_global_count = 0; /* Track how many lrs_dat records are
 					 allocated */
-static size_t infileLen;		  /* length of cache of input file       */
-static char *infile = NULL;		  /* cache of input for restart          */
-static char infilename[PATH_MAX];
-static char outfilename[PATH_MAX];
-static char tmpfilename[PATH_MAX];
-static long overflow = 0;	  /* =0 no overflow =1 restart overwrite =2 restart append */
-static long pivoting = FALSE; /* =0 no overflow =1 restart overwrite =2 restart append */
+__thread static size_t infileLen;		  /* length of cache of input file       */
+__thread static char *infile = NULL;		  /* cache of input for restart          */
+__thread static char infilename[PATH_MAX];
+__thread static char outfilename[PATH_MAX];
+__thread static char tmpfilename[PATH_MAX];
+__thread static long overflow = 0;	  /* =0 no overflow =1 restart overwrite =2 restart append */
+__thread static long pivoting = FALSE; /* =0 no overflow =1 restart overwrite =2 restart append */
 
-static jmp_buf buf1;
+__thread static jmp_buf buf1;
 
-static lrs_dat_p *lrs_global_list[MAX_LRS_GLOBALS + 1];
+__thread static lrs_dat_p *lrs_global_list[MAX_LRS_GLOBALS + 1];
 
 static lrs_dic *new_lrs_dic(long m, long d, long m_A);
 

@@ -23,8 +23,8 @@ long lrsgmp_main(int argc, char *argv[], lrs_dic **P, lrs_dat **Q, long overf, l
 char **makenewargv(int *argc, char **argv, char *tmp);
 lrs_restart_dat *lrs_alloc_restart();
 
-extern FILE *lrs_cfp; /* output file for checkpoint information       */
-extern FILE *lrs_ifp; /* input file pointer       */
-extern FILE *lrs_ofp; /* output file pointer      */
+extern __thread FILE *lrs_cfp; /* output file for checkpoint information       */
+extern __thread FILE *lrs_ifp; /* input file pointer       */
+extern __thread FILE *lrs_ofp; /* output file pointer      */
 
 #endif

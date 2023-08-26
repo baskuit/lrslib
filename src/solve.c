@@ -20,9 +20,9 @@
 #include "lrslib.h"
 #include "solve.h"
 
-static long FirstTime; /* set this to true for every new game to be solved */
-long Debug_flag;
-long Verbose_flag;
+__thread static long FirstTime; /* set this to true for every new game to be solved */
+__thread long Debug_flag;
+__thread long Verbose_flag;
 
 int solve_float(game *g, long *payoff_data, long den, lrs_mp_vector row_data, lrs_mp_vector col_data)
 {

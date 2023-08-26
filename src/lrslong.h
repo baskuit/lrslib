@@ -307,8 +307,8 @@ typedef __int128 ***lrs_mp_matrix;
 /*global variables   */
 /*********************/
 
-extern long lrs_digits;		   /* max permitted no. of digits   */
-extern long lrs_record_digits; /* this is the biggest acheived so far.     */
+extern __thread long lrs_digits;		   /* max permitted no. of digits   */
+extern __thread long lrs_record_digits; /* this is the biggest acheived so far.     */
 
 extern FILE *lrs_ifp; /* input file pointer       */
 extern FILE *lrs_ofp; /* output file pointer      */
@@ -435,8 +435,8 @@ void lrs_clear_mp_matrix(lrs_mp_matrix p, long m, long n);
 long lrs_mp_init(long dec_digits, FILE *fpin, FILE *fpout);
 
 /* how big are numbers? */
-extern long lrs_digits;		   /* max permitted no. of digits   */
-extern long lrs_record_digits; /* this is the biggest achieved so far. */
+extern __thread long lrs_digits;		   /* max permitted no. of digits   */
+extern __thread long lrs_record_digits; /* this is the biggest achieved so far. */
 
 /**********************************/
 /* Miscellaneous functions        */

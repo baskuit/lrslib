@@ -10,9 +10,9 @@
 /* Globals; these need to be here, rather than lrsdriver.h, so they are
    not multiply defined. */
 
-FILE *lrs_cfp; /* output file for checkpoint information       */
-FILE *lrs_ifp; /* input file pointer       */
-FILE *lrs_ofp; /* output file pointer      */
+__thread FILE *lrs_cfp; /* output file for checkpoint information       */
+__thread FILE *lrs_ifp; /* input file pointer       */
+__thread FILE *lrs_ofp; /* output file pointer      */
 
 char **makenewargv(int *argc, char **argv, char *tmp)
 {
