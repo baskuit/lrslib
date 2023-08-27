@@ -13,6 +13,7 @@ add_library(lrsnashlib ${lrsnashlib_sources})
 
 find_library(GMP_LIBRARY gmp)
 target_link_libraries(lrsnashlib INTERFACE ${GMP_LIBRARY})
+# target_link_options(lrsnashlib INTERFACE "-fsanitize=thread")
 
 target_compile_definitions(lrsnashlib PUBLIC GMP LRS_QUIET SURSKIT MUTE)
 
