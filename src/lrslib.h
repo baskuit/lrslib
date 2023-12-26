@@ -1,11 +1,11 @@
+#ifndef LRSLIB
+#define LRSLIB
+
+
 /* lrslib.h (vertex enumeration using lexicographic reverse search) */
 #define TITLE "lrslib_"
 #define VERSION "v.7.2_2022.3.6"
 #define AUTHOR "*Copyright (C) 1995,2022, David Avis   avis@cs.mcgill.ca "
-
-#define LRSLONG
-#define SAFE
-#define LRS_QUIET
 
 /* This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -518,3 +518,4 @@ void redundmask(lrs_dat *Q, lrs_restart_dat *R);
 
 /**************************************************************************/
 
+#endif

@@ -18,6 +18,10 @@
 /* Games     */
 /*************/
 
+#ifndef LRSNASHLIB
+#define LRSNASHLIB
+
+
 #define MAXSTRAT 200
 #define ROW 0
 #define COL 1
@@ -71,3 +75,4 @@ void updateFwidth(game *g, int col, int pos, char *str);
 extern long Debug_flag;
 extern long Verbose_flag;
 
+#endif

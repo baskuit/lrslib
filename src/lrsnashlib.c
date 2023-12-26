@@ -16,10 +16,11 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "lib.h"
+#include "lrsdriver.h"
+#include "lrslib.h"
+#include "lrsnashlib.h"
 
-
-static long FirstTime; /* set this to true for every new game to be solved */
+long FirstTime; /* set this to true for every new game to be solved */
 long Debug_flag;
 long Verbose_flag;
 
@@ -29,7 +30,7 @@ long Verbose_flag;
 int lrs_solve_nash(game * g)
 {
   lrs_dic *P1;             /* structure for holding current dictionary and indices */
-  lrs_dat *Q1, *Q2;             /* structure for holding static problem data            */
+  lrs_dat *Q1, *Q2;             /* structure for holding problem data            */
 
   lrs_mp_vector output1;        /* holds one line of output; ray,vertex,facet,linearity */
   lrs_mp_vector output2;        /* holds one line of output; ray,vertex,facet,linearity */
@@ -53,7 +54,7 @@ int lrs_solve_nash(game * g)
 /*********************************************************************************/
   FirstTime=TRUE;                       /* This is done for each new game */
 
-  Q1 = lrs_alloc_dat("LRS globals");    /* allocate and init structure for static problem data */
+  Q1 = lrs_alloc_dat("LRS globals");    /* allocate and init structure for problem data */
   if (Q1 == NULL) {
     return 0;
   }
@@ -202,8 +203,8 @@ long nash2_main(lrs_dic * P1, lrs_dat * Q1, lrs_dic * P2orig,
   long prune = FALSE;           /* if TRUE, getnextbasis will prune tree and backtrack  */
   long nlinearity;
   long *linearity;
-  static long firstwarning = TRUE;      /* FALSE if dual deg warning for Q2 already given     */
-  static long firstunbounded = TRUE;    /* FALSE if dual deg warning for Q2 already given     */
+  long firstwarning = TRUE;      /* FALSE if dual deg warning for Q2 already given     */
+  long firstunbounded = TRUE;    /* FALSE if dual deg warning for Q2 already given     */
 
   long i, j;
 
@@ -225,7 +226,7 @@ long nash2_main(lrs_dic * P1, lrs_dat * Q1, lrs_dic * P2orig,
   linearity = Q2->linearity;
   nlinearity = 0;
   for (i = Q1->lastdv + 1; i <= P1->m; i++) {
-    if (!zero_(P1->A[P1->Row[i]][0])) {
+    if (!__zero(P1->A[P1->Row[i]][0])) {
       j = Q1->inequality[P1->B[i] - Q1->lastdv];
       if (Q1->nlinearity == 0 || j < Q1->linearity[0])
         linearity[nlinearity++] = j;
@@ -480,7 +481,7 @@ lrs_getfirstbasis2(lrs_dic ** D_p, lrs_dat * Q, lrs_dic * P2orig, lrs_mp_matrix 
 
     /* check to see if objective is dual degenerate */
     j = 1;
-    while (j <= d && !zero_(A[0][j]))
+    while (j <= d && !__zero(A[0][j]))
       j++;
     if (j <= d)
       Q->dualdeg = TRUE;
@@ -489,7 +490,7 @@ lrs_getfirstbasis2(lrs_dic ** D_p, lrs_dat * Q, lrs_dic * P2orig, lrs_mp_matrix 
 /* re-initialize cost row to -det */
   {
     for (j = 1; j <= d; j++) {
-      copy_(A[0][j], D->det);
+      __copy(A[0][j], D->det);
       storesign(A[0][j], NEG);
     }
 
@@ -547,7 +548,7 @@ long getabasis2(lrs_dic * P, lrs_dat * Q, lrs_dic * P2orig, long order[], long l
 {
 /* 2015.10.10 linindex now preallocated and received as parameter so we can free it */
 
-//  static long firsttime = TRUE; /* stays true until first valid dictionary built */
+//  long firsttime = TRUE; /* stays true until first valid dictionary built */
 
   long i, j, k;
 /* assign local variables to structures */
@@ -580,7 +581,7 @@ long getabasis2(lrs_dic * P, lrs_dat * Q, lrs_dic * P2orig, long order[], long l
     for (i = 1; i <= m; i++) {
       if (linindex[B[i]]) {     /* pivot out unwanted linearities */
         k = 0;
-        while (k < d && (linindex[C[k]] || zero_(A[Row[i]][Col[k]])))
+        while (k < d && (linindex[C[k]] || __zero(A[Row[i]][Col[k]])))
           k++;
 
         if (k < d) {
@@ -593,7 +594,7 @@ long getabasis2(lrs_dic * P, lrs_dat * Q, lrs_dic * P2orig, long order[], long l
         }
         else {
           /* this is not necessarily an error, eg. two identical rows/cols in payoff matrix */
-          if (!zero_(A[Row[i]][0])) {    /* error condition */
+          if (!__zero(A[Row[i]][0])) {    /* error condition */
             if (Q->debug || Q->verbose) {
               fprintf(lrs_ofp, "\n*Infeasible linearity i=%ld B[i]=%ld", i, B[i]);
               if (Q->debug)
@@ -632,7 +633,7 @@ long getabasis2(lrs_dic * P, lrs_dat * Q, lrs_dic * P2orig, long order[], long l
       }
       if (i <= m) {             /* try to do a pivot */
         k = 0;
-        while (C[k] <= d && zero_(A[Row[i]][Col[k]]))
+        while (C[k] <= d && __zero(A[Row[i]][Col[k]]))
           k++;
 
         if (C[k] <= d) {
@@ -640,7 +641,7 @@ long getabasis2(lrs_dic * P, lrs_dat * Q, lrs_dic * P2orig, long order[], long l
           update(P, Q, &i, &k);
         }
         else if (j < nlinearity) {      /* cannot pivot linearity to cobasis */
-          if (zero_(A[Row[i]][0])) {
+          if (__zero(A[Row[i]][0])) {
 #ifndef LRS_QUIET
             fprintf(lrs_ofp, "*Input linearity in row %ld is redundant--skipped\n", order[j]);
 #endif
@@ -743,7 +744,7 @@ long lrs_nashoutput(lrs_dat * Q, lrs_mp_vector output, long player)
 
 /* do not print the origin for either player */
   for (i = 1; i < Q->n; i++)
-    if (!zero_(output[i]))
+    if (!__zero(output[i]))
       origin = FALSE;
 
   if (origin)
@@ -766,7 +767,7 @@ int lrs_solve_nash_legacy (int argc, char *argv[])
 // Handles legacy input files
 {
   lrs_dic *P1;			/* structure for holding current dictionary and indices */
-  lrs_dat *Q1,*Q2;		/* structure for holding static problem data            */
+  lrs_dat *Q1,*Q2;		/* structure for holding problem data            */
 
   lrs_mp_vector output1;	/* holds one line of output; ray,vertex,facet,linearity */
   lrs_mp_vector output2;	/* holds one line of output; ray,vertex,facet,linearity */
@@ -806,7 +807,7 @@ int lrs_solve_nash_legacy (int argc, char *argv[])
 /*********************************************************************************/
 
 
-  Q1 = lrs_alloc_dat ("LRS globals");	/* allocate and init structure for static problem data */
+  Q1 = lrs_alloc_dat ("LRS globals");	/* allocate and init structure for problem data */
 
   if (Q1 == NULL)
     return 1;

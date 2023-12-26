@@ -1,73 +1,39 @@
-/* lrslong.c      library code for lrs extended precision arithmetic */
-/* Version 4.0, April 13, 2000                                       */
-/* Copyright: David Avis 1999, avis@cs.mcgill.ca                     */
+/* lrsgmp.c      library code for lrs extended precision arithmetic  */
+/* Version 4.1, April 3, 2001                                        */
+/* Copyright: David Avis 2001, avis@cs.mcgill.ca                     */
 
-/* Derived from prs_single.c ( rational arithmetic for lrs and prs)  */
-/* authored by  Ambros Marzetta    Revision 1.2  1998/05/27          */
+/* Version 4.2, January 20, 2018                                    */
+/* modified to use generic wrappers for everything in lrsgmp.c      */
+
+
+/* For gmp package                                                   */
+/* derived from lrslong.c and lrsmp.c                                */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <limits.h>
-#include "lrslong.h"
+#include "lrsgmp.h"
 
 long lrs_digits;		/* max permitted no. of digits   */
 long lrs_record_digits;		/* this is the biggest acheived so far.     */
 
-#if defined(B128) && !defined(CONS)
-__int128 MAXDm,MAXDl,MAXDa;
-#endif
 
 #define MAXINPUT 1000		/*max length of any input rational */
 
-/* lrs_overflow routine should user supplied if not using lrslib.c */
-
-/*
-void lrs_overflow(int parm)
-{
-}
-*/
-
-void 
-gcd (lrs_mp u, lrs_mp v)
-     /* Returns u=gcd(u,v) using classic Euclid's algorithm.
-        v is destroyed.  Knuth, II, p.320 */
-
-{
-#ifndef B128
-  unsigned long ul, vl, r;
-
-  ul = labs (*u);
-  vl = labs (*v);
-#else
-  __int128 ul, vl, r;
-  ul = abs128 (*u);
-  vl = abs128 (*v);
-#endif
-  if (ul == 0)
-    {
-      *u = vl;
-      return;
-    }
-
-  while (vl != 0)
-    {
-      r= ul % vl;
-      ul = vl;
-      vl = r;
-    }
-  *u = ul;
-}				/* gcd */
 
 void 
 lcm (lrs_mp a, lrs_mp b)			/* a = least common multiple of a, b; b is preserved */
 {
-  lrs_mp u, v;
-  __copy(u, a);
-  __copy(v, b);
-  gcd (u, v);
-  exactdivint (a, u, v);		/* v=a/u   a contains remainder = 0 */
-  mulint (v, b, a);
+	lrs_mp temp1,temp2;
+	lrs_alloc_mp(temp1); lrs_alloc_mp(temp2);
+  __copy (temp1, a);
+  __copy (temp2, b);
+  gcd (temp1,temp2);
+  exactdivint (a, temp1, temp2);		/* temp2=a/temp1   there is no remainder */
+  mulint (temp2, b, a);
+	lrs_clear_mp(temp1);
+	lrs_clear_mp(temp2);
+	
 }				/* end of lcm */
 
 
@@ -82,60 +48,75 @@ void
 reduce (lrs_mp Na, lrs_mp Da)	/* reduces Na/Da by gcd(Na,Da) */
 {
   lrs_mp Nb, Db, Nc, Dc;
-  __copy(Nb, Na);
-  __copy(Db, Da);
+  lrs_alloc_mp(Nb); lrs_alloc_mp(Db);
+  lrs_alloc_mp(Nc); lrs_alloc_mp(Dc);
+  __copy (Nb, Na);
+  __copy (Db, Da);
   storesign (Nb, POS);
   storesign (Db, POS);
-  __copy(Nc, Na);
-  __copy(Dc, Da);
+  __copy (Nc, Na);
+  __copy (Dc, Da);
   gcd (Nb, Db);			/* Nb is the gcd(Na,Da) */
   exactdivint (Nc, Nb, Na);
   exactdivint (Dc, Nb, Da);
+  lrs_clear_mp(Nb); lrs_clear_mp(Db);
+  lrs_clear_mp(Nc); lrs_clear_mp(Dc);
 }
 
 void 
 reduceint (lrs_mp Na, lrs_mp Da)	/* divide Na by Da and return */
 {
-  lrs_mp Temp;
-  __copy(Temp, Na);
-  exactdivint (Temp, Da, Na);
+	lrs_mp temp1;
+	lrs_alloc_mp(temp1);
+  __copy (temp1, Na);
+  exactdivint (temp1, Da, Na);
+	lrs_clear_mp(temp1);
 }
 
 
-long
-comprod (lrs_mp Na, lrs_mp Nb, lrs_mp Nc, lrs_mp Nd)    /* +1 if Na*Nb > Nc*Nd  */
-                          /* -1 if Na*Nb < Nc*Nd  */
-                          /*  0 if Na*Nb = Nc*Nd  */
+long 
+comprod (lrs_mp Na, lrs_mp Nb, lrs_mp Nc, lrs_mp Nd)
+					    /* +1 if Na*Nb > Nc*Nd  */
+					    /* -1 if Na*Nb < Nc*Nd  */
+					    /*  0 if Na*Nb = Nc*Nd  */
 {
-  lrs_mp mc, md;
-  itomp(ZERO,mc); itomp(ZERO,md);   /*just to please some compilers */
-  mulint (Na, Nb, mc);
-  mulint (Nc, Nd, md);
-  if (mp_greater(mc,md))
-    return (1);
-  if (mp_greater(md,mc))
-    return (-1);
-  return (0);
+	
+  long i;
+	lrs_mp temp1,temp2;
+	lrs_alloc_mp(temp1); lrs_alloc_mp(temp2);
+  mulint (Na, Nb, temp1);
+  mulint (Nc, Nd, temp2);
+//i=mpz_cmp(temp1,temp2);
+  i=mpcmp(temp1,temp2);
+	lrs_clear_mp(temp1);
+	lrs_clear_mp(temp2);
+  if (i > 0)
+    return (ONE);
+  else if (i < 0)
+    return (-ONE);
+  else 
+    return (ZERO);
 }
-
 
 void 
-linrat (lrs_mp Na, lrs_mp Da, long ka, lrs_mp Nb,  lrs_mp Db, long kb, lrs_mp Nc, lrs_mp Dc)		
-/* computes Nc/Dc = ka*Na/Da  +kb* Nb/Db and reduces answer by gcd(Nc,Dc) */
+linrat (lrs_mp Na, lrs_mp Da, long ka, lrs_mp Nb, lrs_mp Db, long kb, lrs_mp Nc, lrs_mp Dc)
+
+	/* computes Nc/Dc = ka*Na/Da  +kb* Nb/Db and reduces answer by gcd(Nc,Dc) */
 {
-  lrs_mp c;
-  itomp(ZERO,c);   /*just to please some compilers */
+	lrs_mp temp1;
+	lrs_alloc_mp(temp1);
   mulint (Na, Db, Nc);
-  mulint (Da, Nb, c);
-  linint (Nc, ka, c, kb);	/* Nc = (ka*Na*Db)+(kb*Da*Nb)  */
+  mulint (Da, Nb, temp1);
+  linint (Nc, ka, temp1, kb);	/* Nc = (ka*Na*Db)+(kb*Da*Nb)  */
   mulint (Da, Db, Dc);		/* Dc =  Da*Db           */
   reduce (Nc, Dc);
+	lrs_clear_mp(temp1);
 }
 
 
 void 
-divrat (lrs_mp Na, lrs_mp Da, lrs_mp Nb, lrs_mp Db, lrs_mp Nc, lrs_mp Dc)	
-/* computes Nc/Dc = (Na/Da)  / ( Nb/Db ) and reduces answer by gcd(Nc,Dc) */
+divrat (lrs_mp Na, lrs_mp Da, lrs_mp Nb, lrs_mp Db, lrs_mp Nc, lrs_mp Dc)
+           /* computes Nc/Dc = (Na/Da) /( Nb/Db ) and reduce */
 {
   mulint (Na, Db, Nc);
   mulint (Da, Nb, Dc);
@@ -144,8 +125,9 @@ divrat (lrs_mp Na, lrs_mp Da, lrs_mp Nb, lrs_mp Db, lrs_mp Nc, lrs_mp Dc)
 
 
 void 
-mulrat (lrs_mp Na, lrs_mp Da, lrs_mp Nb, lrs_mp Db, lrs_mp Nc, lrs_mp Dc)	
-/* computes Nc/Dc = Na/Da  * Nb/Db and reduces answer by gcd(Nc,Dc) */
+mulrat (lrs_mp Na, lrs_mp Da, lrs_mp Nb, lrs_mp Db, lrs_mp Nc, lrs_mp Dc)
+              /* computes Nc/Dc=(Na/Da)*(Nb/Db) and reduce      */
+
 {
   mulint (Na, Nb, Nc);
   mulint (Da, Db, Dc);
@@ -164,6 +146,7 @@ atomp (const char *s, lrs_mp a)	/*convert string to lrs_mp integer */
 {
   long diff, ten, i, sig;
   lrs_mp mpone;
+  lrs_alloc_mp (mpone);
   itomp (ONE, mpone);
   ten = 10L;
   for (i = 0; s[i] == ' ' || s[i] == '\n' || s[i] == '\t'; i++);
@@ -179,11 +162,14 @@ atomp (const char *s, lrs_mp a)	/*convert string to lrs_mp integer */
       i++;
     }
   storesign (a, sig);
+
   if (s[i])
     {
       fprintf (stderr, "\nIllegal character in number: '%s'\n", s + i);
       exit (1);
     }
+
+  lrs_clear_mp (mpone);
 }				/* end of atomp */
 
 void 
@@ -203,60 +189,6 @@ atoaa (const char *in, char *num, char *den)
     }
 }				/* end of atoaa */
 
-void 
-mptodouble (lrs_mp a, double *x)	/* convert lrs_mp to double */
-{
-  (*x) = (*a);
-}
-
-long
-mptoi (lrs_mp a)        /* convert lrs_mp to long */
-{
-  return (*a);
-}
-
-/* return char * representation of a in base 10.
- * use out if non-NULL, otherwise allocate and return.
- */
-char *mpgetstr10(char *out, lrs_mp a)
-{
-  char *buf=NULL;
-#ifndef B128
-  int len=0;
-  len = snprintf(buf, 0, "%lld", *a);
-  if (out != NULL)
-    buf = out;
-  else
-    buf = malloc(sizeof(char)*(len+1));
-  sprintf(buf, "%lld", *a);
-  return buf;
-#else
-  __int128 tmp=abs128(*a);
-  int i,j=0;
-  int t[41];
-  if (out != NULL)
-    buf = out;
-  else
-    buf = calloc(43, sizeof(char));
-  if (*a>=LLONG_MIN && *a<=LLONG_MAX)
-  {
-    sprintf(buf, "%lld", (long long)*a);
-    return buf;
-  }
-  for (i=0; tmp>0; i++)
-  {
-    t[i] = tmp%10;
-    tmp = tmp / 10;
-  }
-  i--;
-  if (*a<0)
-    buf[j++]='-';
-  while (i>=0)
-    buf[j++] = '0'+t[i--];
-  return buf;
-#endif
-}
-
 
 void 
 rattodouble (lrs_mp a, lrs_mp b, double *x)	/* convert lrs_mp rati
@@ -264,10 +196,31 @@ rattodouble (lrs_mp a, lrs_mp b, double *x)	/* convert lrs_mp rati
 
 {
   double y;
-  mptodouble (a, &y);
-  mptodouble (b, x);
-  *x = y / (*x);
+//y=mpz_get_d (a);
+  y=mptodouble (a);
+//(*x)=mpz_get_d (b);
+  (*x)=mptodouble (b);
+  (*x) = y / (*x);
 }
+
+/* read a rational or integer and convert to lrs_mp with base BASE */
+/* returns true if denominator is not one                      */
+/* returns 999 if premature end of file                        */
+long plrs_readrat (lrs_mp Na, lrs_mp Da, const char* rat)
+{
+  	char in[MAXINPUT], num[MAXINPUT], den[MAXINPUT];
+ 	strcpy(in, rat);
+	atoaa (in, num, den);		/*convert rational to num/dem strings */
+	atomp (num, Na);
+	if (den[0] == '\0')
+	{
+		itomp (1L, Da);
+		return (FALSE);
+	}
+	atomp (den, Da);
+	return (TRUE);
+}
+
 
 long 
 readrat (lrs_mp Na, lrs_mp Da)	/* read a rational or integer and convert to lrs_mp */
@@ -296,37 +249,6 @@ readrat (lrs_mp Na, lrs_mp Da)	/* read a rational or integer and convert to lrs_
   return (TRUE);
 }
 
-/* read a rational or integer and convert to lrs_mp with base BASE */
-/* returns true if denominator is not one                      */
-long plrs_readrat (lrs_mp Na, lrs_mp Da, const char* rat)
-{
-  	char in[MAXINPUT], num[MAXINPUT], den[MAXINPUT];
- 	strcpy(in, rat);
-	atoaa (in, num, den);		/*convert rational to num/dem strings */
-	atomp (num, Na);
-	if (den[0] == '\0')
-	{
-		itomp (1L, Da);
-		return (FALSE);
-	}
-	atomp (den, Da);
-	return (TRUE);
-}
-
-
-void 
-readmp (lrs_mp a)		/* read an integer and convert to lrs_mp */
-{
-  long in;
-  if(fscanf (lrs_ifp, "%ld", &in)==EOF)
-                 {
-                   fprintf (lrs_ofp, "\nInvalid integer input");
-                   exit(1);
-                 }
-
-  itomp (in, a);
-}
-
 char *cprat (const char *name, lrs_mp Nin, lrs_mp Din)
 {
   char *num, *den, *ret;
@@ -334,8 +256,8 @@ char *cprat (const char *name, lrs_mp Nin, lrs_mp Din)
   lrs_mp Nt, Dt;
   lrs_alloc_mp (Nt); lrs_alloc_mp (Dt);
 
-  __copy(Nt, Nin);
-  __copy(Dt, Din);
+  __copy (Nt, Nin);
+  __copy (Dt, Din);
   reduce (Nt, Dt);
 
   num = mpgetstr10(NULL, Nt);
@@ -353,7 +275,7 @@ char *cprat (const char *name, lrs_mp Nin, lrs_mp Din)
   else
     {
      if (sign (Nt) != NEG)
-       sprintf(ret, "%s %s/%s", name, num, den);
+       sprintf(ret, " %s %s/%s", name, num, den);
      else
        sprintf(ret, "%s%s/%s", name, num, den);
     }
@@ -375,91 +297,65 @@ char *cpmp (const char *name, lrs_mp Nin)
        sprintf(ret, "%s %s", name, num);
   else
        sprintf(ret, "%s%s", name, num);
-  free(num); 
+  free(num);
   return ret;
 }
 
-void 
+
+void
 pmp (const char *name, lrs_mp Nt)
 {
   fprintf (lrs_ofp, "%s", name);
   if (sign (Nt) != NEG)
     fprintf (lrs_ofp, " ");
-#ifndef B128
-  fprintf (lrs_ofp, "%lld", *Nt);
-#else
-  char buf[41]={0};
-  __int128 tmp=abs128(*Nt);
-  int c;
-  int i;
-  if (*Nt>=LLONG_MIN && *Nt<=LLONG_MAX)
-  {
-    fprintf (lrs_ofp, "%lld ", (long long)*Nt);
-    return;
-  }
-  if (*Nt<0)
-    putc('-', lrs_ofp);
-  for (i=0; tmp>0; i++)
-  {
-    buf[i] = tmp%10;
-    tmp = tmp / 10;
-  }
-  i--;
-  while (i>=0)
-  {
-    c='0'+buf[i--];
-    putc(c, lrs_ofp);
-  }
-#endif
-  putc(' ', lrs_ofp);
+//mpz_out_str (lrs_ofp,10,Nt);
+  mpoutstr (lrs_ofp,10,Nt);
+  fprintf (lrs_ofp, " ");
 }
 
 void 
 prat (const char *name, lrs_mp Nin, lrs_mp Din)
      /*print the long precision rational Nt/Dt  */
 {
-  lrs_mp Nt, Dt;
-  __copy(Nt, Nin);
-  __copy(Dt, Din);
-  reduce (Nt, Dt);
-  if (sign (Nt) != NEG)
+	lrs_mp temp1, temp2;
+	lrs_alloc_mp(temp1);
+	lrs_alloc_mp(temp2);
+  __copy (temp1, Nin);
+  __copy (temp2, Din);
+  reduce (temp1, temp2);
+  fprintf (lrs_ofp, "%s", name);
+  if (sign (temp1) != NEG)
     fprintf (lrs_ofp, " ");
-#ifndef B128
-  fprintf (lrs_ofp, "%s%lld", name, *Nt);
-  if (*Dt != 1)
-    fprintf (lrs_ofp, "/%lld", *Dt);
-#else
-  {
-    char *Nc, *Dc;
-    Nc = mpgetstr10(NULL, Nt);
-    fprintf(lrs_ofp, "%s%s", name, Nc);
-    free(Nc);
-    if (*Dt != 1)
+  mpoutstr (lrs_ofp,10,temp1);
+  if ( !one(temp2))
     {
-      Dc = mpgetstr10(NULL, Dt);
-      fprintf(lrs_ofp, "/%s", Dc);
-      free(Dc);
+    fprintf (lrs_ofp, "/");
+    mpoutstr (lrs_ofp,10,temp2);
     }
-  }
-#endif
   fprintf (lrs_ofp, " ");
+	lrs_clear_mp(temp1);
+	lrs_clear_mp(temp2);
 }				/* prat */
 
+
+void
+readmp (lrs_mp a)               /* read an integer and convert to lrs_mp */
+{
+  long in;
+  if(fscanf (lrs_ifp, "%ld", &in)==EOF)
+                 {
+                   fprintf (lrs_ofp, "\nInvalid integer input");
+                   exit(1);
+
+                 }
+  itomp (in, a);
+}
 
 /***************************************************************/
 /*                                                             */
 /*     Memory allocation functions                             */
 /*                                                             */
 /***************************************************************/
-lrs_mp_t
-lrs_alloc_mp_t ()
- /* dynamic allocation of lrs_mp number */
-{
-  lrs_mp_t p;
-  p=(lrs_mp_t)calloc (1, sizeof (lrs_mp));
-  return p;
-}
-
 
 lrs_mp_vector 
 lrs_alloc_mp_vector (long n)
@@ -468,9 +364,9 @@ lrs_alloc_mp_vector (long n)
   lrs_mp_vector p;
   long i;
 
-  p = (lrs_mp_t *) CALLOC ((n + 1), sizeof (lrs_mp_t));
+  p = (lrs_mp_vector) CALLOC ((n + 1), sizeof (lrs_mp ));
   for (i = 0; i <= n; i++)
-    p[i] = (lrs_mp_t) CALLOC (1, sizeof (lrs_mp));
+    lrs_alloc_mp(p[i]);
 
   return p;
 }
@@ -480,10 +376,9 @@ lrs_clear_mp_vector (lrs_mp_vector p, long n)
 /* free space allocated to p */
 {
   long i;
-  for (i = 0; i <= n; i++)
-    free (p[i]);
+  for (i=0; i<=n; i++)
+     lrs_clear_mp (p[i] );
   free (p);
-  p=NULL;
 }
 
 lrs_mp_matrix 
@@ -491,49 +386,44 @@ lrs_alloc_mp_matrix (long m, long n)
 /* allocate lrs_mp_matrix for m+1 x n+1 lrs_mp numbers */
 {
   lrs_mp_matrix a;
-  lrs_mp_t araw;
-  int mp_width, row_width;
   int i, j;
 
-  mp_width = lrs_digits + 1;
-  row_width = (n + 1) * mp_width;
 
-  araw = (lrs_mp_t) calloc ((m + 1) * row_width, sizeof (lrs_mp));
-  a = (lrs_mp_t **) calloc ((m + 1), sizeof (lrs_mp_vector));
+  a = (lrs_mp_matrix) calloc ((m + 1), sizeof (lrs_mp_vector));
 
   for (i = 0; i < m + 1; i++)
     {
-      a[i] = (lrs_mp_t *) calloc ((n + 1), sizeof (lrs_mp_t));
+      a[i] = (lrs_mp_vector) calloc ((n + 1), sizeof (lrs_mp ));
 
       for (j = 0; j < n + 1; j++)
-	a[i][j] = (araw + i * row_width + j * mp_width);
+	lrs_alloc_mp (a[i][j]);
     }
   return a;
 }
 
 void
 lrs_clear_mp_matrix (lrs_mp_matrix p, long m, long n)
-/* free space allocated to lrs_mp_matrix p */
+/* free space allocated to p */
 {
-  long i;
+  long i,j;
+  for (i = 0; i < m + 1; i++)
+    {
+      for (j = 0; j < n + 1; j++)
+        lrs_clear_mp (p[i][j]);
 
-/* p[0][0] is araw, the actual matrix storage address */
-
- free(p[0][0]);
-
- for (i = 0; i < m + 1; i++)
       free (p[i]);
-/* 2015.9.9 memory leak fix */
- free(p);
- p=NULL;
+
+    }
+
+  free (p);
 }
 
 void 
 lrs_getdigits (long *a, long *b)
 {
 /* send digit information to user */
-  *a = DIG2DEC (ZERO);
-  *b = DIG2DEC (ZERO);
+  *a = ZERO;
+  *b = ZERO;
   return;
 }
 
@@ -559,24 +449,14 @@ lrs_mp_init (long dec_digits, FILE * fpin, FILE * fpout)
 /* max number of decimal digits for the computation */
 /* long int version                                 */
 {
-#ifndef PLRS
   lrs_ifp = fpin;
   lrs_ofp = fpout;
-#endif
+  lrs_record_digits = 0;        /* not used for gmp arithmetic  */
+  lrs_digits = 0;		/* not used for gmp arithmetic  */
 
-#ifdef B128
-#ifndef CONS
-  MAXDl=9223372036854775807L;  /* 2^63 - 1 */
-  MAXDa=MAXDl*MAXDl;           /* should be 2^126 - 1 */
-  MAXDm=3611622602L;    /* sqrt(sqrt( 2^127 -1 ))         */
-  MAXDm=MAXDm*MAXDm+6000000000;    /* too big to initialize directly */
-#endif
-#endif
-
-  lrs_record_digits = 0;
-  lrs_digits =  0;		/* max permitted no. of digits   */
   return TRUE;
 }
+
 
 void 
 notimpl (const char *s)
@@ -592,39 +472,43 @@ notimpl (const char *s)
 /*                                                             */
 /***************************************************************/
 
+/* find largest gcd of p[0]..p[n-1] and divide through */
 void 
 reducearray (lrs_mp_vector p, long n)
-/* find largest gcd of p[0]..p[n-1] and divide through */
 {
-  lrs_mp divisor;
-  lrs_mp Temp;
+  lrs_mp divisor, temp1;
   long i = 0L;
 
-  while ((i < n) && __zero(p[i]))
+  while ((i < n) && __zero (p[i]))
     i++;
   if (i == n)
     return;
 
-  __copy(divisor, p[i]);
+  lrs_alloc_mp (divisor);
+  lrs_alloc_mp (temp1);
+
+  __copy (divisor, p[i]);
   storesign (divisor, POS);
   i++;
 
   while (i < n)
     {
-      if (!__zero(p[i]))
+      if (!__zero (p[i]))
 	{
-	  __copy(Temp, p[i]);
-	  storesign (Temp, POS);
-	  gcd (divisor, Temp);
+	  __copy (temp1, p[i]);
+	  storesign (temp1, POS);
+	  gcd (divisor, temp1);
 	}
       i++;
     }
 
-/* reduce by divisor */
   for (i = 0; i < n; i++)
-    if (!__zero(p[i]))
+    if (!__zero (p[i]))
       reduceint (p[i], divisor);
-}				/* end of reducearray */
+  lrs_clear_mp (divisor);
+  lrs_clear_mp (temp1);
+}
+				/* end of reducearray */
 
 
 long 
@@ -638,24 +522,38 @@ myrandom (long num, long nrange)
 }
 
 void 
-getfactorial (lrs_mp factorial, long k)		/* compute k factorial
-						   in lrs_mp */
-{
-  lrs_mp temp;
-  long i;
-  itomp (ONE, factorial);
-  for (i = 2; i <= k; i++)
-    {
-      itomp (i, temp);
-      mulint (temp, factorial, factorial);
-    }
-}				/* end of getfactorial */
-
-void 
 stringcpy (char *s, char *t)	/*copy t to s pointer version */
 {
   while (((*s++) = (*t++)) != '\0');
 }
 
+void
+linint(lrs_mp a, long ka, lrs_mp b, long kb)
+/* a=a*ka+b*kb,  b unchanged */
+{
+  lrs_mp temp1;
+  lrs_alloc_mp (temp1);
+//mpz_mul_ui (a,a,labs(ka));
+  mului (a,a,labs(ka));
+  if (ka < 0)
+//   mpz_neg(a,a);
+  changesign(a);
+  mului (temp1,b,labs(kb));
+  if (kb < 0)
+//   mpz_neg(temp1,temp1);
+ changesign(temp1);
+//mpz_add(a,a,temp1);
+ addint(a,temp1,a);
+ lrs_clear_mp (temp1);
 
+}
+
+
+void
+storesign(lrs_mp a, long sa)
+{
+  if ( (sa)*sign(a) < 0 )
+//    mpz_neg(a,a);
+    changesign(a);
+}
 
